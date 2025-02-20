@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adventure Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="body">
+    <audio id="click-sound" src="buttonclick.mp3" preload="auto"></audio>
+    <audio id="death-sound" src="deathsound.mp3" preload="auto"></audio>
+
+    <div id="game-container">
+        <h1 id="titlechange">Adventure Game</h1>
+        <div id="story">Welcome to the game!...Escape!</div>
+        <button class="choice-btn-jungle" onclick="choosePath('jungle')">Jungle</button>
+        <button class="choice-btn-desert" onclick="choosePath('desert')">Desert</button>
+        <button class="choice-btn-mountain" onclick="choosePath('mountain')">Mountain</button>
+        <button class="choice-btn-island" onclick="choosePath('island')">Island</button>
+        <button class="choice-btn-space" onclick="choosePath('space')">Space</button>
+        <div id="status">Health: <span id="health">100</span> | Coins: <span id="coins">100</span></div>
+        <div id="message"></div>
+    </div>
+    <script>
+        let health = 100;
+        let coins = 100;
+
+        const clickSound = document.getElementById('click-sound');
+
+        // Add event listener to all buttons
+        const allButtons = document.querySelectorAll('.choice-btn-jungle, .choice-btn-desert, .choice-btn-mountain, .choice-btn-island, .choice-btn-space, .secondary-choice-btn');
+
+        allButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Play the click sound
+                clickSound.play();
+            });
+        });
+
+        function updateStatus() {
+            document.getElementById('health').innerText = health;
+            document.getElementById('coins').innerText = coins;
+
+            if (health <= 0) {
+                // Remove mountain background if it exists
+                const mountainBg = document.getElementById('mountain-bg');
+                if (mountainBg) {
+                    mountainBg.remove();
+                }
+                // Play death sound
+                const deathSound = document.getElementById('death-sound');
+                deathSound.play();
+
+                document.getElementById('game-container').classList.add('low-health-container');
+                document.getElementById('story').classList.add('low-health-story');
+                document.getElementById("body").classList.add('low-health-body');
+
+                
+
+
+                // Optionally display a game over message
+            }
+        }
+
+        function choosePath(path) {
+            // Change the document title to reflect the option clicked
+            document.title = `Adventure Game - You chose: ${path.charAt(0).toUpperCase() + path.slice(1)}`;
+
+            document.querySelectorAll('button').forEach(button => button.style.display = 'none');
+
+            if (path === 'space') {
+                document.getElementById('titlechange').innerHTML = "Space";
+
+                document.getElementById('story').innerHTML = "You’ve spent all your credits and resources on shiny new gear for your crewmates, but you skipped on checking who's actually on the ship. As you board the ship, you notice something suspicious...there’s an Impostor among you. But this isn’t just any Impostor—it’s Red! And when Red comes up to you, you know what's about to happen. <strong>OH NO ITS A SABATOGE</strong>. Before you can react, the lights go out. <em>You’re trapped in the darkness...and it's too late<em>. <em><strong>Game Over.</strong></em>";
+
+                health = 0;
+                updateStatus();
+            } 
+
+            else if (path === 'desert') {
+            document.getElementById('titlechange').innerHTML = "Desert";
+            document.getElementById('story').innerHTML = "To explore the desert, the Game Master wants you to purchase sunscreen for your safety.";
+
+                let buySunButton = createButton("Buy Sunscreen", () => {
+                document.getElementById('story').innerHTML = "You purchased sunscreen for 10 coins and are now safe from the desert's heat.";
+                    coins -= 10; 
+                    updateStatus(); 
+                    removeButtons([buySunButton]);
+
+                    let continueBtn = createButton("Continue", () => {
+                        document.getElementById('story').innerHTML = "Would you like to search for an oasis before you dehydrate?";
+                        removeButtons([continueBtn]);
+
+                        let searchOasisBtn = createButton("Search", () => {
+                            document.getElementById('story').innerHTML = "You search for an oasis and find one, but before you take a sip of water, you lay on the sand for a while.";
+                            removeButtons([searchOasisBtn, dehydrateBtn]);
+
+                            let continueBtn2 = createButton("Continue", () => {
+                                document.getElementById('story').innerHTML = "Even though you found an oasis, you didn’t take a sip of water and are now hallucinating. You take damage from trying to eat a cactus.";
+                                health -= 20;
+                                updateStatus();
+                                removeButtons([continueBtn2]);
+
+                                let continueBtn3 = createButton("Continue", () => {
+                                    document.getElementById('story').innerHTML = "Two objects appear in front of you. Because you’re hallucinating, you don’t know if they’re real. You can only choose one.";
+                                    removeButtons([continueBtn3]);
+
+                                    let object1Btn = createButton("Object 1", () => {
+                                        document.getElementById('story').innerHTML = "You chose object 1. It was a poisonous snake. <em><strong>Game Over.</strong></em>";
+                                        health = 0;
+                                        updateStatus();
+                                        removeButtons([object1Btn, object2Btn]);
+                                    });
+
+                                    let object2Btn = createButton("Object 2", () => {
+                                        document.getElementById('story').innerHTML = "You chose object 2. It was a poisonous spider. <em><strong>Game Over.</strong></em>";
+                                        health = 0;
+                                        updateStatus();
+                                        removeButtons([object1Btn, object2Btn]);
+                                    });
+                                });
+                            });
+                        });
+
+                        let dehydrateBtn = createButton("Dehydrate", () => {
+                            document.getElementById('story').innerHTML = "You dehydrate and die. <em><strong>Game Over.</strong></em>";
+                            health = 0;
+                            updateStatus();
+                            removeButtons([dehydrateBtn, searchOasisBtn]);
+                        });
+                    });
+                });
+            }
+
+
+
+            else if (path === 'island') {
+                document.getElementById('titlechange').innerHTML = "Island";
+
+
+                
+                document.getElementById('story').innerHTML = "To explore the island, you must buy scuba diving gear from a shop nearby. Do you choose the more expensive 20 coins scuba gear from a smiling merchant or the cheaper 5 coins scuba gear sold by a fourteen-year-old?";
+
+                // Create Expensive and Cheap options as buttons
+                let expensive = createButton("Expensive", () => choosePath("Expensive"));
+                let cheap = createButton("Cheap", () => choosePath("Cheap"));
+            } 
+            else if (path === 'Expensive') {
+                // Actions for choosing the expensive option
+                document.getElementById('story').innerHTML = "You decide to go for the expensive option.";
+                coins -= 20;
+                updateStatus();
+
+                let continueBtn = createButton("Continue", () => {
+                    updateStory("While in the water you see something glimmering in the sand. Do you go and retrieve it?");
+                    // Remove the first Continue button after use
+                    removeButtons([continueBtn]);
+
+                    // Create Yes and No buttons
+                    let yesBtn = createButton("Yes", () => {
+                        updateStory("It's a debit card. Nearby, you see a well-dressed rich man pleading with the merchant to help him look for his debit card. You can give the man the card, or steal it and no one will ever know.");
+                        updateStatus();
+                        removeButtons([yesBtn, noBtn]); // Remove the buttons after choice
+
+                        // Create "Give" and "Steal" options instead of continue
+                        let giveBtn = createButton("Give", () => {
+                            updateStory("You give the rich man the debit card. He thanks you and rewards you with 100 coins and treats you to a burger which gives you 15 health points.");
+                            coins += 100; // Add 100 coins for being kind
+                            health += 15; // Add 15 health points for being kind
+                            updateStatus();
+                            removeButtons([giveBtn, stealBtn]);
+
+                            let continueagainBtn = createButton("Continue", () => {
+                                updateStory("There's a waiter standing there, with glazed, golden eyes, almost as if hypnotized. There's shattered plates on the ground. But what's more astonishing is the aliens behind the waiter, and the rich man talking to the them and looking like their leader.");
+                                updateStatus();
+                                removeButtons([continueagainBtn]); // Ensure Continue button is removed after the game over                            
+                                let continueagain2Btn = createButton("Continue", () => {
+                                    updateStory("Do want to fight them with your martial arts skills or run?");
+                                    updateStatus();
+                                    removeButtons([continueagain2Btn]); // Ensure Continue button is removed after the game over                           
+                                    let fightBtn = createButton("Fight", () => {
+                                        updateStory("You're a flurry of kicks and punches and somehow knock out the aliens and take control of their ship. You see a switch on the control panel. Do you flip it?");
+                                        updateStatus();
+                                        removeButtons([fightBtn, runBtn]);
+
+                                        let flipSwitchBtn = createButton("Flip Switch", () => {
+                                            updateStory("When you turn on the ship, the aliens had carelessly left the light speed toggle on. You immediately blast off and collide with Mars at light speed and ultimately liquefy your organs. <em><strong>Game Over<em><strong>. ");
+                                            health = 0
+                                            updateStatus();
+                                            removeButtons([flipSwitchBtn, dontFlipSwitchBtn]);
+                                        });
+                                        let dontFlipSwitchBtn = createButton("Don't Flip Switch", () => {
+                                            updateStory("The switch turned out to be the switch to turn on the ship. The aliens regain consciousness and shoot you with their Reality Remover 1000. You are no longer real. <em><strong>Game Over<em><strong>.");
+                                            health = 0
+                                            updateStatus();
+                                            removeButtons([flipSwitchBtn, dontFlipSwitchBtn]);
+                                        });
+                                    });
+                                    let runBtn = createButton("Run", () => {
+                                        updateStory("The aliens effortlessly use their high-tech Poison X Paralyzer 2000 and you slowly die while paralyzed. <strong><em>Game Over<em><strong>");
+                                        health = 0
+                                        updateStatus();
+                                        removeButtons([runBtn, fightBtn]); // Ensure Continue button is removed after the game over
+                                    });
+                                });
+                            });
+                        });
+
+                        let stealBtn = createButton("Steal", () => {
+                            coins += 1000; // Add 1000 coins for stealing
+                            updateStory("You steal the debit card and decide to make your first spend at a local souvenir shop. When you go to checkout and stick the card in the card reader, the leftover water and sand from the island cause a malfunction and the shop explodes in a thermonuclear explosion. <em><strong>Game Over.</strong></em>");
+                            health = 0; // Player dies
+                            updateStatus();
+                            removeButtons([giveBtn, stealBtn]); // Remove the buttons after the choice
+
+                            // Create and remove the Continue button after use
+                            let continueBtn = createButton("Continue", () => {
+                                updateStory("You continue your exploration on the island.");
+                                updateStatus();
+                                removeButtons([continueBtn]); // Ensure the Continue button is removed after the game over
+                            });
+                            removeButtons([continueBtn]); // This will ensure the Continue button is removed after the game over
+                        });
+                    });
+
+                    let noBtn = createButton("No", () => {
+                        updateStory("You take a bit too long to decide whether or not to retrieve the item. When you glance up...there's a shark right in front of you. It proceeds to bite your head off. <em><strong>Game Over.</strong></em>");
+                        health = 0;
+                        updateStatus();
+                        removeButtons([yesBtn, noBtn]); // Remove the buttons after choice
+                    });
+
+                    // Remove the Continue button after the user clicks it
+                    removeButtons([continueBtn]);
+                });
+            }
+
+            else if (path === 'Cheap') {
+                // Actions for choosing the cheap option
+                document.getElementById('story').innerHTML = "You proceed to the boat so you can jump inside the sea.";
+                coins -= 5; // Saving money by choosing the cheap option
+                updateStatus();
+
+                // Create the continue button before they die
+                let continueBtn = createButton("Continue", () => {
+                    health = 0; // Player dies
+                    updateStory("You jump in the sea, take a breath with your snorkel gear, and quickly realize that your cheap gear is leaky. You thrash around and call for help but go unconscious and drown. <em><strong>Game Over.</strong></em>");
+                    updateStatus();
+                    removeButtons([continueBtn]); // Remove the continue button after the game over
+                });
+            }
+
+            else if (path === 'mountain') {
+                // Create and play multiple rumble sounds
+                const rumbleSound = new Audio('wavenoise.mp3');
+                const rumbleSound2 = new Audio('wavenoise.mp3');
+                rumbleSound.loop = true;
+                rumbleSound2.loop = true;
+                // Set different volumes for a layered effect
+                rumbleSound.volume = 1.0;
+                rumbleSound2.volume = 0.6;
+                // Add slight delay to second sound for more natural effect
+                setTimeout(() => {
+                    rumbleSound2.play();
+                }, 100);
+                rumbleSound.play();
+                
+                // Create and show mountain background
+                let mountainBg = document.createElement('div');
+                mountainBg.classList.add('mountain-bg');
+                mountainBg.style.backgroundImage = 'url("mountain.png")';
+                mountainBg.id = 'mountain-bg';
+                document.body.appendChild(mountainBg);
+
+                // Stop sound after animation ends (1.2s for rise + shake)
+                setTimeout(() => {
+                    // Fade out over 200ms
+                    const fadeInterval = setInterval(() => {
+                        if (rumbleSound.volume > 0.1 || rumbleSound2.volume > 0.1) {
+                            rumbleSound.volume -= 0.1;
+                            rumbleSound2.volume -= 0.06;
+                        } else {
+                            clearInterval(fadeInterval);
+                            rumbleSound.pause();
+                            rumbleSound2.pause();
+                            rumbleSound.volume = 1.0;
+                            rumbleSound2.volume = 0.6;
+                        }
+                    }, 20);
+                }, 1200);
+                
+                document.getElementById('story').innerHTML = "Would you like to take the long or short path up the mountain?";
+                document.getElementById('titlechange').innerHTML = "Mountain";
+
+                createButton("Long Path", () => choosePath('longPath'));
+                createButton("Short Path", () => choosePath('shortPath'));
+            } else if (path === 'shortPath') {
+                document.getElementById('story').innerHTML = "You fall off the mountain while trying to take the shortcut. <em><strong>Game Over.</strong></em>";
+                health = 0;
+                updateStatus();
+            } else if (path === 'longPath') {
+                document.getElementById('story').innerHTML = "While making the long trek up the mountain, a mysterious old man approaches you. Do you want to talk to him?";
+
+                createButton("Yes", () => choosePath('talk'));
+                createButton("No", () => choosePath('ignore'));
+            } else if (path === 'ignore') {
+                document.getElementById('story').innerHTML = "The old man turns out to be a witch and poisons you with a poison that can kill 1000 elephants. <em><strong>Game Over.</strong></em>";
+                health = 0;
+                updateStatus();
+            } else if (path === 'talk') {
+                document.getElementById('story').innerHTML = "You have chosen to talk to the old man. He tells you that he has a special quest for you. He says that he will give you 20 health points if you can answer his riddle. The riddle is: What has a head and a tail but no body?";
+
+                let inputField = document.createElement('input');
+                inputField.setAttribute('type', 'text');
+                inputField.setAttribute('id', 'riddle-answer');
+                document.getElementById('game-container').appendChild(inputField);
+
+                let submitBtn = createButton("Submit", checkAnswer);
+                submitBtn.setAttribute('id', 'submit-btn');
+            } else if (path === 'continue') {
+                choosePathContinue();
+            } 
+        }
+
+        function checkAnswer() {
+            let answerField = document.getElementById('riddle-answer');
+            let submitBtn = document.getElementById('submit-btn');
+            let answer = answerField.value.toLowerCase();
+            let correctAnswers = ["coin", "a coin", "coins"];
+
+            answerField.remove();
+            submitBtn.remove();
+
+            if (correctAnswers.includes(answer)) {
+                document.getElementById('story').innerHTML = "Correct! The old man gives you 20 health points!";
+                health += 20;
+            } else {
+                document.getElementById('story').innerHTML = "The old man wacks you with his cane with surprising force for getting the riddle wrong and vanishes.";
+                health -= 20;
+            }
+
+            updateStatus();
+            createButton("Continue", () => choosePath('continue')); // Show Continue button
+        }
+
+        function choosePathContinue() {
+            updateStory("You get tired along your journey. Do you want to take a nap?");
+
+            let yesBtn = createButton("Yes", () => {
+                health += 15;
+                updateStory("You decided to take a nap and gain 15 health points.");
+                updateStatus();
+                removeButtons([yesBtn, noBtn]); // Now properly removes buttons
+                let continueBtn = createButton("Continue", () => {
+                    removeButtons([continueBtn]); // Ensure Continue button is removed
+                    mutatedBearEncounter();
+                });
+            });
+
+            let noBtn = createButton("No", () => {
+                updateStory("You decided not to take a nap. You know there isn't coffee right?");
+                removeButtons([yesBtn, noBtn]); // Now properly removes buttons
+                let continueBtn = createButton("Continue", () => {
+                    updateStory("Your exhaustion causes you to hallucinate. You wander aimlessly and fall off a cliff. <em><strong>Game Over.</strong></em>");
+                    health = 0;
+                    updateStatus();
+                    removeButtons([continueBtn]); // Remove the continue button after use
+                });
+            });
+        }
+
+        // Function to remove buttons after a choice is made
+        function removeButtons(buttons) {
+            buttons.forEach(button => button.remove());
+        }
+
+        function mutatedBearEncounter() {
+            updateStory("A mutated bear starts charging towards you. It stops a few feet away. Do you want to run away or stay?");
+
+            // Create buttons
+            let runBtn = createButton("Run", () => {
+                removeButtons([runBtn, stayBtn]); // Remove both buttons before updating story
+                health = 0;
+                updateStory("You turn around and sprint away as fast as you can, but what were you thinking? You can't outrun a bear! The bear catches up to you and eats you. <em><strong>Game Over.</strong></em>");
+                updateStatus();
+            });
+
+            let stayBtn = createButton("Stay", () => {
+                removeButtons([runBtn, stayBtn]); // Remove both buttons before updating story
+                health = 0;
+                updateStory("You and the bear have a staring contest, but the bear eventually gives up. However, the Game Master notices how close you were to escaping and snatches you up from heaven and crushes you. <em><strong>Game Over.</strong></em>");
+                updateStatus();
+            });
+        }
+
+        function updateStory(choice) {
+            document.getElementById('story').innerHTML = choice;
+        }
+
+        function createButton(text, onClick) {
+            let button = document.createElement('button');
+            button.innerHTML = text;
+            button.classList.add('secondary-choice-btn');
+
+            // Add event listener to play sound when the button is clicked
+            button.addEventListener('click', function() {
+                // Play the click sound
+                clickSound.play();
+                onClick();
+            });
+
+            document.getElementById('game-container').appendChild(button);
+            return button;
+        }
+
+        // Create audio element for water sound
+        const waterSound = new Audio('wavenoise.mp3');  // Replace 'your-sound-file.mp3' with your actual sound file name
+        waterSound.loop = true;
+
+        document.querySelector('.choice-btn-island').addEventListener('click', function() {
+          let rectangle = document.createElement('div');
+          rectangle.classList.add('falling-rectangle');
+          document.body.appendChild(rectangle);
+          
+          // Play the water sound
+          waterSound.play();
+
+          // Fade out the sound and remove rectangle
+          setTimeout(() => {
+            // Fade out over 500ms
+            const fadeInterval = setInterval(() => {
+              if (waterSound.volume > 0.1) {
+                waterSound.volume -= 0.1;
+              } else {
+                clearInterval(fadeInterval);
+                waterSound.pause();
+                waterSound.volume = 1.0;
+                waterSound.currentTime = 0;
+                rectangle.remove();
+              }
+            }, 50);
+          }, 1500);
+        });
+
+document.querySelector('.choice-btn-space').addEventListener('click', function() {
+          let floatingElement = document.createElement('div');
+          floatingElement.classList.add('floating-element');
+
+          // Create an image element and set its source
+          let image = document.createElement('img');
+          image.src = 'amongus.webp';  // Replace with your image path
+          image.alt = 'Floating Image';  // Add an alt text if necessary
+          image.style.width = '100px';  // You can adjust the size of the image
+          image.style.height = 'auto';  // Keep the image's aspect ratio
+
+          // Append the image to the floating element
+          floatingElement.appendChild(image);
+
+          // Append the floating element to the body
+          document.body.appendChild(floatingElement);
+
+          // Optional: Remove after animation ends to clean up
+          setTimeout(function() {
+            floatingElement.remove();
+          }, 6000); // Match the total animation duration (5s + fadeOut 1s)
+        });
+
+
+
+        updateStatus(); // Initialize status
+
+        // Add sun animation for desert
+        document.querySelector('.choice-btn-desert').addEventListener('click', function() {
+          let sun = document.createElement('div');
+          sun.classList.add('sun');
+          document.body.appendChild(sun);
+          
+          // Remove sun element after animation
+          setTimeout(() => {
+            sun.remove();
+          }, 3000);
+        });
+    </script>
+</body>
+</html>
