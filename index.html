@@ -1,0 +1,132 @@
+<html lang="en" class="wf-robotocondensed-n3-active wf-robotocondensed-n7-active wf-robotocondensed-n4-active wf-active"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+<meta name="idauto-idp-ui/config/environment" content="%7B%22modulePrefix%22%3A%22idauto-idp-ui%22%2C%22podModulePrefix%22%3A%22idauto-idp-ui/pods%22%2C%22APIServer%22%3A%22/api/rest%22%2C%22environment%22%3A%22production%22%2C%22baseURL%22%3A%22/idp/dist/%22%2C%22locationType%22%3A%22hash%22%2C%22reCaptchaUrl%22%3A%22https%3A//www.google.com/recaptcha/api.js%3Frender%3Dexplicit%22%2C%22contentSecurityPolicy%22%3A%7B%22default-src%22%3A%22%27self%27%22%2C%22script-src%22%3A%22%27self%27%20assets.identitymgmt.net%22%2C%22font-src%22%3A%22%27self%27%20fonts.gstatic.com%22%2C%22style-src%22%3A%22%27self%27%20assets.identitymgmt.net%20fonts.googleapis.com%22%2C%22connect-src%22%3A%22%27self%27%22%2C%22img-src%22%3A%22%27self%27%20*%22%2C%22media-src%22%3A%22%27self%27%22%7D%2C%22webFontConfig%22%3A%7B%22google%22%3A%7B%22families%22%3A%5B%22Roboto%20Condensed%3A400%2C700%2C300%3Alatin%22%5D%7D%2C%22timeout%22%3A2000%7D%2C%22EmberENV%22%3A%7B%22FEATURES%22%3A%7B%7D%7D%2C%22APP%22%3A%7B%22routeList%22%3A%5B%22authn%22%2C%22totp%22%2C%22challenge-question%22%5D%2C%22name%22%3A%22idauto-idp-ui%22%2C%22version%22%3A%222025.01.0-0+0241f9bd%22%7D%2C%22i18n%22%3A%7B%22defaultLocale%22%3A%22en%22%2C%22resourceBundleList%22%3A%7B%22net.idauto.idp.authn_ui%22%3A%22authn_ui%22%2C%22net.idauto.arms.ui.AccountManagementModule%22%3A%22profiles_ui%22%2C%22net.idauto.core.ui.ApplicationUIBase%22%3A%22core_ui%22%7D%2C%22serviceInjections%22%3A%5B%22route%22%2C%22component%22%2C%22controller%22%5D%7D%2C%22ApiPath%22%3A%22/api/rest%22%2C%22contentSecurityPolicyHeader%22%3A%22Content-Security-Policy-Report-Only%22%2C%22exportApplicationGlobal%22%3Afalse%7D">
+    <title>AISD Portal</title>
+<link rel="shortcut icon" href="https://austinisd.us001-rapididentity.com:443/files/favicon.ico">
+<link rel="stylesheet" href="https://assets.identitymgmt.net/rapididentity/2025.01.0-32788/idp/assets/vendor-d41d8cd98f00b204e9800998ecf8427e.css.gz">
+<link rel="stylesheet" href="https://assets.identitymgmt.net/rapididentity/2025.01.0-32788/idp/assets/idauto-idp-ui-9e8f44a1acb0ba52e6c7ca336e864261.css.gz">
+
+<link rel="stylesheet" href="https://austinisd.us001-rapididentity.com/api/rest/authn/custom-style.css.gz">
+<script>
+
+</script>
+
+    
+    
+    <script>
+        var ccpapi = undefined;
+    </script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700,300&amp;subset=latin" media="all">
+</head>
+<body class="cs-body antialiased ember-application">
+    <script>
+        if(/MSIE/i.test(navigator.userAgent)) { // IE11 does not qualify
+            console.log("Detected unsupported browser: " + navigator.userAgent);
+            //window.location.href = window.location.protocol+'//'+window.location.host + "/idp/error?unsupportedBrowser=1";
+        }
+    </script>
+
+    <span id="heading-int" style="display:none;">AISD Portal</span>
+<script src="https://assets.identitymgmt.net/rapididentity/2025.01.0-32788/idp/assets/vendor-152e391e33b8993f989efb804d75cf35.js.gz"></script>
+<script src="https://assets.identitymgmt.net/rapididentity/2025.01.0-32788/idp/assets/idauto-idp-ui-8023f28259bde1c7eb8205f0709f9059.js.gz"></script>
+
+
+    <form id="expiredPwdForm" style="display:none;" method="POST" action="">
+        <input type="hidden" name="username" id="expUsername" value="">
+        <input type="hidden" name="password" id="expPassword" value="">
+    </form>
+
+<div id="ember377" class="ember-view"><div class="wrapper cs-wrapper">
+
+    <nav class="nav-bar nav-bar-top cs-header">
+    <div class="cs-logo-container "></div>
+    <h1 class="cs-app-heading">AISD Portal</h1>
+</nav>
+
+
+    <div id="loader-cntr" class="loader hide">
+        <div class="spinner"></div>
+        <div class="overlay"></div>
+    </div>
+
+    <main class="content">
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<div id="authn-container" class="cs-container">
+     <div class="login-logo cs-login-logo" role="img" aria-label=""></div>
+        <div class="top-section">
+            <div id="authn-heading-container" class="pull-left cs-heading-container">
+                <h1 class="page-heading cs-heading cs-text">
+                    Login
+                </h1>
+            </div>
+
+                <div id="authn-help-link" class="need-help-link">
+                    <button class="cs-button-aslink" type="button" data-ember-action="475">Forgot Password?</button>
+                </div>
+        </div>
+        <form id="authn-login-form" class="login-container cs-login-container">
+<!---->
+                <div id="authn-username-wrapper">
+                    <div id="authn-username-input" class="ember-view placeholder-container"><input id="identification" placeholder="Username" required="" aria-label="Username" aria-required="true" class="input placeholder-input ember-view ember-text-field">
+<span class="placeholder-text">Username</span></div>
+
+<!---->
+<!---->                </div>
+
+<!---->
+<!---->
+            <div id="authn-go-wrapper" class="cs-button-wrapper first">
+                <button class="cs-button button button-small button-wide cs-nav-next-button" id="authn-go-button" type="submit" data-ember-action="493">
+                        Continue
+                </button>
+            </div>
+
+<!---->                <div id="authn-qr-wrapper" class="cs-button-wrapper first">
+                    <button id="authn-qr-button" class="cs-button button button-small button-wide cs-nav-next-button" type="submit" title="Scan QR Code" data-ember-action="494">
+                        Scan QR Code
+                    </button>
+                </div>
+
+<!---->
+<!---->
+            <div id="ember503" class="ember-view switch-policies"><!----></div>
+
+<!---->        </form>
+    <div id="ember512" class="ember-view custom-html"><div class="custom_div">
+
+  <div style="width:auto;margin-bottom:8px;">	
+	<button class="pwdreset_btn" onclick="window.location.href='https://austinisd.us001-rapididentity.com/portal/forgotten/username/step1';">
+		Forgot User Name?
+	</button>   
+
+	<button class="pwdreset_btn" style="float:right;" onclick="window.location.href='https://austinisd.us001-rapididentity.com/portal/forgotten/username/step1';">
+		Recuperar nombre de usuario
+	</button>   
+  </div>
+
+  <div style="width:auto;margin-bottom:8px;">	
+  	<button class="pwdreset_btn" onclick="window.location.href='https://access.austinisd.org/account-creation/';">
+		Create a Parent Account
+	</button>
+	<button class="pwdreset_btn" style="float:right;" onclick="window.location.href='https://access.austinisd.org/account-creation/';">
+		Crear una cuenta de padres
+	</button>  
+  </div>
+  
+  <div style="width:100%;margin-top:12px;"></div>
+  <div class="aup_text" style="margin-bottom:12px;">
+    Please note that the use of the AISD computer network, computer equipment, and resources are not private and may be monitored for appropriate use. For further information, please refer to the AISD Responsible Use Policies on <a href="https://www.austinisd.org/technology/policy" target="_blank"> this page.</a> Your access to this AISD site and service constitutes your acceptance of all provisions of the AISD Responsible Use Policy.
+  </div>
+   
+</div></div>
+</div>
+
+    </main>
+
+<div id="simple-modal" class="ember-view"><!----></div>
+</div></div></body></html>
