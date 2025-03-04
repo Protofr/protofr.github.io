@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avi's Awesome Website</title>
-    <link rel="stylesheet" href="style.css"> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" /> <!-- Font Awesome for icons (optional, but cool) -->
+    <title>Frontend-Only Live Chat - INSECURE DEMO!</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="livechat.css">
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
@@ -13,64 +15,39 @@
         <nav>
             <div class="logo">Avi's Website</div>
             <ul class="nav-links">
-                <li><a href="#">Home</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropbtn">Projects <i class="fas fa-caret-down"></i></a>
-                    <div class="dropdown-content">
-                        <a href="#">Project 1</a>
-                        <a href="#">Project 2</a>
-                        <a href="#">Project 3</a>
-                        </div>
-                </li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="index.html">Home</a></li>
             </ul>
         </nav>
     </header>
 
-    <section id="hero">
-        <div class="hero-content">
-            <h1>Welcome to the Awesome World of Avi</h1>
-            <p>A place to showcase projects, tools, and creativity.</p>
-            <a href="#projects" class="cta-button">Explore Projects</a>
+    <main id="chat-container">
+        <div class="chat-window" style="margin-right: 0; flex: 100%;"> <!-- Make chat window full width, remove sidebar styling -->
+            <div class="chat-header">
+                <h2>Frontend-Only Live Chat (Insecure DEMO!)</h2>
+                <div class="room-info">
+                    Room: <span id="room-name">Local Chat</span> <!-- No real rooms -->
+                </div>
+            </div>
+            <div class="message-area" id="message-area">
+                <!-- Messages will be displayed here by JavaScript -->
+                <div class="message received">
+                    <span class="sender">System:</span> Welcome to the chat! (Frontend Demo - Insecure)
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Type your message...">
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
         </div>
-    </section>
 
-    <section id="projects">
-        <h2>My Projects</h2>
-        <div class="projects-grid">
-            <div class="project-card">
-                <img src="placeholder-project1.jpg" alt="Project 1"> 
-                <h3>Project Name 1</h3>
-                <p>Short description of project 1. Highlight the key features and technologies used.</p>
-                <a href="#">Learn More</a>
-            </div>
-            <div class="project-card">
-                <img src="placeholder-project2.jpg" alt="Project 2">
-                <h3>Project Name 2</h3>
-                <p>Short description of project 2.</p>
-                <a href="#">Learn More</a>
-            </div>
-            <div class="project-card">
-                <img src="placeholder-project3.jpg" alt="Project 3">
-                <h3>Project Name 3</h3>
-                <p>Short description of project 3.</p>
-                <a href="#">Learn More</a>
-            </div>
-        </div>
-    </section>
+        <!-- Removed Sidebar and Room List completely -->
 
-    <section id="tools-buttons">
-        <h2>Useful Tools</h2>
-        <div class="buttons-container">
-            <a href="gradechecker.html" class="tool-button grade-checker">Grade Checker</a>
-            <a href="serverstarter.html" class="tool-button server-starter">Server Starter</a>
-            <a href="todolist.html" class="tool-button todo-list">To-Do List</a>
-        </div>
-    </section>
+    </main>
 
     <footer>
-        <p>© 2023 Avi's Website. All rights reserved.</p>
+        <p>© 2023 Avi's Website. All rights reserved.  (Frontend Demo - Insecure)</p>
     </footer>
 
 </body>
