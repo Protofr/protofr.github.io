@@ -1,0 +1,364 @@
+/*  style.css  */
+
+/* ---  Global Styles  --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern, clean font */
+    margin: 0;
+    padding: 0;
+    background-color: #181818; /* Dark background for a modern feel */
+    color: #f8f8f8; /* Light text color */
+    line-height: 1.6;
+    scroll-behavior: smooth; /* Smooth scrolling when clicking links */
+}
+
+*, *::before, *::after {
+    box-sizing: border-box; /* Ensure padding and border are included in element's total width and height */
+}
+
+h1, h2, h3 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #f0f0f0; /* Slightly brighter headings */
+}
+
+p {
+    margin-bottom: 1.5rem;
+    color: #ddd; /* Slightly softer text color for paragraphs */
+}
+
+a {
+    color: #64b5f6; /* Vibrant link color */
+    text-decoration: none;
+    transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+a:hover {
+    color: #90caf9; /* Lighter link color on hover */
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Prevents extra space below images in some cases */
+}
+
+/* --- Header and Navigation --- */
+header {
+    background-color: rgba(24, 24, 24, 0.9); /* Slightly transparent header background */
+    position: sticky; /* Fixed navbar */
+    top: 0;
+    z-index: 100; /* Ensure navbar stays on top of other content */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2rem; /* Spacing inside navbar */
+    max-width: 1200px; /* Limit navbar width on very large screens */
+    margin: 0 auto; /* Center navbar on larger screens */
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* Navigation links in a row */
+    align-items: center;
+}
+
+.nav-links li {
+    margin-left: 2rem; /* Spacing between nav items */
+}
+
+.nav-links li a {
+    font-size: 1.1rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth background/color transition */
+}
+
+.nav-links li a:hover {
+    background-color: rgba(255, 255, 255, 0.08); /* Light background hover effect */
+    color: #fff;
+}
+
+/* --- Dropdown --- */
+.dropdown {
+    position: relative; /* For positioning dropdown content */
+}
+
+.dropbtn {
+    cursor: pointer; /* Make dropdown link look clickable */
+    display: flex; /* Align text and icon */
+    align-items: center;
+    gap: 5px; /* Spacing between text and icon */
+}
+
+.dropdown-content {
+    display: none; /* Initially hide dropdown content */
+    position: absolute;
+    background-color: #282828;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+    right: 0; /* Dropdown opens to the right of the Projects link */
+}
+
+.dropdown-content a {
+    color: #f8f8f8;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    display: block; /* Make links full width of dropdown */
+    transition: background-color 0.3s ease;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.dropdown-content a:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Darker hover for dropdown links */
+}
+
+.dropdown:hover .dropdown-content {
+    display: block; /* Show dropdown content on hover */
+}
+
+/* --- Hero Section --- */
+#hero {
+    background: linear-gradient(to right, #2980b9, #6dd5fa); /* Gradient background - change as desired! */
+    padding: 8rem 2rem;
+    text-align: center;
+    color: #fff; /* White text on hero background */
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #fff; /* Ensure hero heading is white */
+}
+
+#hero p {
+    font-size: 1.2rem;
+    color: #f0f0f0; /* Slightly softer white for hero paragraph */
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    color: #181818; /* Dark text for contrast on white button */
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 2rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #e0e0e0; /* Slightly darker white on button hover */
+    color: #181818;
+}
+
+/* --- Projects Section --- */
+#projects {
+    padding: 4rem 2rem;
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#projects h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid columns */
+    gap: 2rem;
+    justify-items: center; /* Center items within grid cells */
+}
+
+.project-card {
+    background-color: #222; /* Card background */
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Card shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover effects */
+}
+
+.project-card:hover {
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Stronger shadow on hover */
+}
+
+.project-card img {
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.project-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.project-card p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #ccc; /* Softer project description text */
+}
+
+.project-card a {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    background-color: #64b5f6; /* Project link button background */
+    color: #fff;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.project-card a:hover {
+    background-color: #5392c7; /* Slightly darker on project link hover */
+}
+
+/* --- Tools Buttons Section --- */
+#tools-buttons {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #121212; /* Slightly darker background for tools section */
+}
+
+#tools-buttons h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    gap: 2rem;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.tool-button {
+    display: inline-block;
+    padding: 1.2rem 2.5rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Button shadow */
+}
+
+.tool-button:hover {
+    transform: translateY(-3px); /* Slight lift on button hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4); /* Stronger shadow on button hover */
+}
+
+.grade-checker {
+    background-color: #2ecc71; /* Green for grade checker */
+}
+.grade-checker:hover { background-color: #27ae60; }
+
+.server-starter {
+    background-color: #e67e22; /* Orange for server starter */
+}
+.server-starter:hover { background-color: #d35400; }
+
+.todo-list {
+    background-color: #3498db; /* Blue for to-do list */
+}
+.todo-list:hover { background-color: #2980b9; }
+
+
+/* --- Footer --- */
+footer {
+    background-color: #282828;
+    color: #ccc;
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.9rem;
+    border-top: 1px solid #333; /* Subtle top border for footer */
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) { /* For tablets and smaller screens */
+    nav {
+        flex-direction: column; /* Stack logo and nav links vertically */
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: 1rem;
+    }
+
+    .nav-links {
+        flex-direction: column; /* Stack nav links vertically on small screens */
+        margin-top: 1rem;
+    }
+
+    .nav-links li {
+        margin-left: 0;
+        margin-bottom: 1rem;
+    }
+
+    #hero {
+        padding: 6rem 2rem; /* Adjust hero padding on smaller screens */
+    }
+
+    #hero h1 {
+        font-size: 2.5rem; /* Smaller hero heading on smaller screens */
+    }
+
+    #hero p {
+        font-size: 1.1rem; /* Smaller hero paragraph text */
+    }
+
+    .buttons-container {
+        flex-direction: column; /* Stack buttons vertically on small screens */
+    }
+
+    .tool-button {
+        margin-bottom: 1rem;
+        width: 100%; /* Full width buttons on smaller screens */
+        display: block; /* Ensure block for width to work */
+    }
+}
+
+@media (max-width: 480px) { /* For very small screens (phones) */
+    #hero h1 {
+        font-size: 2rem; /* Even smaller hero heading on phones */
+    }
+
+    #hero p {
+        font-size: 1rem; /* Even smaller hero paragraph text on phones */
+    }
+
+    #projects h2, #tools-buttons h2 {
+        font-size: 2rem; /* Smaller section headings on phones */
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr; /* Single column project grid on phones */
+    }
+
+    .project-card {
+        padding: 1rem; /* Reduced card padding on phones */
+    }
+}
