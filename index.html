@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frontend-Only Live Chat - INSECURE DEMO!</title>
+    <title>Secure Live Chat - Avi's Website</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="livechat.css">
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="livechat.css"> <!-- New CSS for chat-specific styling -->
+    <script src="script.js" defer></script> <!-- Illustrative JavaScript (replace for real functionality) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
@@ -16,22 +16,24 @@
             <div class="logo">Avi's Website</div>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
+                <!-- ... (other nav links if needed) ... -->
             </ul>
         </nav>
     </header>
 
     <main id="chat-container">
-        <div class="chat-window" style="margin-right: 0; flex: 100%;"> <!-- Make chat window full width, remove sidebar styling -->
+        <div class="chat-window">
             <div class="chat-header">
-                <h2>Frontend-Only Live Chat (Insecure DEMO!)</h2>
+                <h2>Secure Live Chat</h2>
                 <div class="room-info">
-                    Room: <span id="room-name">Local Chat</span> <!-- No real rooms -->
+                    Room: <span id="room-name">Public Room</span>
+                    <!-- Room password entry could go here if room is password-protected (backend logic) -->
                 </div>
             </div>
             <div class="message-area" id="message-area">
                 <!-- Messages will be displayed here by JavaScript -->
                 <div class="message received">
-                    <span class="sender">System:</span> Welcome to the chat! (Frontend Demo - Insecure)
+                    <span class="sender">System:</span> Welcome to the chat!
                 </div>
             </div>
             <div class="input-area">
@@ -42,12 +44,22 @@
             </div>
         </div>
 
-        <!-- Removed Sidebar and Room List completely -->
+        <!-- Room Selection/Creation Sidebar (Conceptual UI) -->
+        <aside class="sidebar">
+            <h3>Rooms</h3>
+            <ul class="room-list" id="room-list">
+                <li><a href="#" data-room="public-room" class="active-room">Public Room</a></li>
+                <li><a href="#" data-room="room1">Room 1 (Passworded) <i class="fas fa-lock"></i></a></li>
+                <li><a href="#" data-room="room2">Room 2</a></li>
+                <!-- Rooms would be dynamically loaded from the backend in a real app -->
+            </ul>
+            <button class="create-room-button">Create New Room</button> <!-- Functionality via JavaScript & Backend -->
+        </aside>
 
     </main>
 
     <footer>
-        <p>© 2023 Avi's Website. All rights reserved.  (Frontend Demo - Insecure)</p>
+        <p>© 2023 Avi's Website. All rights reserved.</p>
     </footer>
 
 </body>
