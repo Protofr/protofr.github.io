@@ -12,7 +12,6 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px; /* Default font size for scaling purposes */
-    overflow-y: scroll; /* Ensures a scrollbar is always present */
 }
 
 body {
