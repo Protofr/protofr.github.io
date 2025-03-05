@@ -13,6 +13,7 @@ html {
     scroll-behavior: smooth;
     font-size: 16px; /* Default font size for scaling purposes */
     overflow-y: scroll; /* Ensures a scrollbar is always present */
+    height: 100%; /* Ensure the html element takes full height */
 }
 
 body {
@@ -25,7 +26,23 @@ body {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
+    min-height: 100vh; /* This is also crucial */
+    position: relative; /* for absolute positioning of the dots and extended background */
+}
+
+/* Keep the background styles applied to the BODY */
+body {
+    background: radial-gradient(circle, #222, #000);
+    position: relative;  /* Needed for ::before pseudo-element */
+    overflow: hidden;   /* prevents dots scrolling */
+}
+
+.page-wrapper { /* This helps wrap things, so html can fill correctly */
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
+    width: 100%;  /* important for background extend properly if there is a long wide object on page. */
+    overflow: hidden; /* to prevent overflow inside this wrapper from causing scrollbar. The <body> scrollbar covers for all */
 }
 
 header {
@@ -272,10 +289,6 @@ button {
 
 /* More CSS to fill the 500+ lines */
 
-body {
-    background: radial-gradient(circle, #222, #000);
-}
-
 section.content {
     position: relative;
     overflow: hidden;
@@ -324,21 +337,6 @@ h1 {
     display: inline-block;
 }
 
-/* Additional gradient effects */
-body {
-    background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
-}
-
-section {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-footer {
-    background: rgba(0, 0, 0, 0.5);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 /* Subtle transitions */
 section {
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -350,11 +348,6 @@ section:hover {
 }
 
 /* Background particles */
-body {
-    position: relative;
-    overflow: hidden;
-}
-
 body::before {
     content: '';
     position: absolute;
@@ -450,83 +443,63 @@ h1::after {
     0% {
         clip: rect(2px, 450px, 41px, 0);
     }
-
     5% {
         clip: rect(17px, 450px, 93px, 0);
     }
-
     10% {
         clip: rect(17px, 450px, 93px, 0);
     }
-
     15% {
         clip: rect(18px, 450px, 74px, 0);
     }
-
     20% {
         clip: rect(43px, 450px, 13px, 0);
     }
-
     25% {
         clip: rect(89px, 450px, 77px, 0);
     }
-
     30% {
         clip: rect(89px, 450px, 77px, 0);
     }
-
     35% {
         clip: rect(38px, 450px, 88px, 0);
     }
-
     40% {
         clip: rect(36px, 450px, 46px, 0);
     }
-
     45% {
         clip: rect(27px, 450px, 95px, 0);
     }
-
     50% {
         clip: rect(79px, 450px, 30px, 0);
     }
-
     55% {
         clip: rect(64px, 450px, 51px, 0);
     }
-
     60% {
         clip: rect(26px, 450px, 71px, 0);
     }
-
     65% {
         clip: rect(19px, 450px, 94px, 0);
     }
-
     70% {
         clip: rect(95px, 450px, 10px, 0);
     }
-
     75% {
         clip: rect(36px, 450px, 24px, 0);
     }
-
     80% {
         clip: rect(34px, 450px, 55px, 0);
     }
-
     85% {
         clip: rect(49px, 450px, 79px, 0);
     }
-
     90% {
         clip: rect(42px, 450px, 78px, 0);
     }
-
     95% {
         clip: rect(39px, 450px, 52px, 0);
     }
-
     100% {
         clip: rect(75px, 450px, 82px, 0);
     }
@@ -536,83 +509,63 @@ h1::after {
     0% {
         clip: rect(62px, 450px, 3px, 0);
     }
-
     5% {
         clip: rect(72px, 450px, 42px, 0);
     }
-
     10% {
         clip: rect(64px, 450px, 51px, 0);
     }
-
     15% {
         clip: rect(43px, 450px, 39px, 0);
     }
-
     20% {
         clip: rect(43px, 450px, 10px, 0);
     }
-
     25% {
         clip: rect(86px, 450px, 23px, 0);
     }
-
     30% {
         clip: rect(99px, 450px, 58px, 0);
     }
-
     35% {
         clip: rect(49px, 450px, 2px, 0);
     }
-
     40% {
         clip: rect(55px, 450px, 86px, 0);
     }
-
     45% {
         clip: rect(12px, 450px, 100px, 0);
     }
-
     50% {
         clip: rect(85px, 450px, 98px, 0);
     }
-
     55% {
         clip: rect(33px, 450px, 13px, 0);
     }
-
     60% {
         clip: rect(51px, 450px, 67px, 0);
     }
-
     65% {
         clip: rect(96px, 450px, 89px, 0);
     }
-
     70% {
         clip: rect(71px, 450px, 95px, 0);
     }
-
     75% {
         clip: rect(17px, 450px, 64px, 0);
     }
-
     80% {
         clip: rect(20px, 450px, 31px, 0);
     }
-
     85% {
         clip: rect(34px, 450px, 93px, 0);
     }
-
     90% {
         clip: rect(45px, 450px, 63px, 0);
     }
-
     95% {
         clip: rect(71px, 450px, 74px, 0);
     }
-
     100% {
         clip: rect(39px, 450px, 28px, 0);
     }
