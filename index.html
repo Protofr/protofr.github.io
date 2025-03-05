@@ -5,31 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Avi's Website</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="page-wrapper">  <!-- Wrap everything inside -->
+    <div class="container">
         <header>
-            <h1 data-text="Avi's Website">Avi's Website</h1>
+            <h1>Avi's Website</h1>
         </header>
         <main>
             <section class="hero">
-                <h2>Welcome to the Awesome Place!</h2>
-                <p>Explore, discover, and enjoy everything here. This site is crafted with passion and designed for you.</p>
+                <h2>Welcome!</h2>
+                <p>This is my personal website where I share some tools and projects I've been working on. Feel free to explore!</p>
             </section>
-            <section class="content">
-                <h3>Dive into the Features</h3>
-                <p>We're building incredible tools and experiences. Get ready to be amazed!</p>
+            <section class="features">
+                <h3>Explore my projects:</h3>
+                <div class="projects-grid">
+                    <a href="serverstarter.html" class="project-card">
+                        <h4>Server Starter</h4>
+                        <p>Start your server easily!</p>
+                    </a>
+                    <a href="todolist.html" class="project-card">
+                        <h4>To-Do List</h4>
+                        <p>Organize your tasks.</p>
+                    </a>
+                    <a href="enchant.html" class="project-card">
+                        <h4>Enchant Calculator</h4>
+                        <p>Calculates enchants (not mine)</p>
+                    </a>
+                </div>
             </section>
         </main>
         <footer>
-            <div class="buttons">
-                <a href="serverstarter.html"><button>Server Starter</button></a>
-                <a href="todolist.html"><button>To-Do List</button></a>
-                <a href="enchant.html"><button>Enchant Calculator</button></a>
-                <button>Coming Soon</button>
-            </div>
+            <p>© 2024 Avi's Website</p>
         </footer>
-    </div>  <!-- Closing div -->
+    </div>
 </body>
 </html>
