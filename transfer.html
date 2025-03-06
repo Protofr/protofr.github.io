@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f4f4f4;
+        }
+        textarea {
+            width: 80%;
+            height: 50vh;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            outline: none;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="sharedBox" placeholder="Type here..."></textarea>
+    <script>
+        const textarea = document.getElementById('sharedBox');
+        textarea.value = localStorage.getItem('transferData') || '';
+        textarea.addEventListener('input', () => {
+            localStorage.setItem('transferData', textarea.value);
+        });
+    </script>
+</body>
+</html>
