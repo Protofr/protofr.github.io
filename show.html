@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Show Viewer</title>
+  <style>
+    :root {
+      --primary: #5563DE;
+      --primary-dark: #3e4ab8;
+      --text: #2d3748;
+      --background: #f7fafc;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      min-height: 100vh;
+      color: var(--text);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .container {
+      background: var(--card);
+      width: 100%;
+      max-width: 500px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      animation: slideDown 0.7s ease-out;
+    }
+
+    h2 {
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(85, 99, 222, 0.1);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .primary-button {
+      background: var(--primary);
+      color: white;
+    }
+
+    .secondary-button {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #videoContainer {
+      margin: 2rem auto;
+      width: 100%;
+      max-width: 900px;
+      opacity: 0;
+      transition: all 0.8s ease;
+      background: var(--card);
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .video-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      cursor: default;
+    }
+
+    .video-wrapper:hover .video-controls {
+      opacity: 1;
+    }
+
+    .time-display {
+      color: white;
+      font-size: 0.9rem;
+      min-width: 100px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-bar-filled {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .control-button {
+      background: transparent;
+      border: none;
+      color: white;
+      padding: 0.5rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+
+    .control-button:hover {
+      opacity: 1;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .video-info {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      color: white;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .video-wrapper:hover .video-info {
+      opacity: 1;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .episode-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 0.5rem;
+    }
+
+    .progress-info {
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .download-progress {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #f1f5f9;
+      border-radius: 0.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .container {
+        padding: 1.5rem;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Add fullscreen styles */
+    video:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      background: black;
+    }
+
+    .video-wrapper:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      padding: 0;
+    }
+
+    .video-controls:fullscreen {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2147483647;
+    }
+
+    .video-info:fullscreen {
+      z-index: 2147483647;
+    }
+
+    /* Add to your CSS */
+    .video-wrapper {
+      cursor: pointer;
+    }
+
+    .video-controls {
+      cursor: default;
+    }
+
+    /* Add to your existing CSS */
+    .back-button {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .back-button:hover {
+      opacity: 0.8;
+    }
+
+    /* Update video fullscreen styles */
+    .video-wrapper:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      padding: 0;
+    }
+
+    .video-wrapper:fullscreen video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      background: black;
+    }
+
+    .video-wrapper:fullscreen .video-controls {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1.5rem;
+    }
+
+    /* Add to your CSS section */
+    video {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      pointer-events: none; /* This prevents direct interaction with the video element */
+    }
+
+    .video-wrapper {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+
+    .shows-history {
+      margin: 2rem auto;
+      max-width: 900px;
+      background: var(--card);
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      background: #f8fafc;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .history-item:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .history-title {
+      font-weight: 500;
+    }
+
+    .history-info {
+      color: inherit;
+      opacity: 0.8;
+    }
+
+    /* Add to your CSS section */
+    .video-wrapper:fullscreen {
+      cursor: default !important;
+    }
+
+    .video-wrapper:fullscreen:hover {
+      cursor: default !important;
+    }
+
+    /* Show cursor over controls even when hidden */
+    .video-controls {
+      cursor: default !important;
+    }
+
+    .control-button {
+      cursor: pointer !important;
+    }
+
+    .progress-bar {
+      cursor: pointer !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Show Viewer</h2>
+    <div class="input-group">
+      <label for="showName">Show Name</label>
+      <input type="text" id="showName" placeholder="Enter Show Name" required />
+    </div>
+    <div class="input-group">
+      <label for="seasonNum">Season Number</label>
+      <input type="number" id="seasonNum" min="1" value="1" required />
+    </div>
+    <div class="input-group">
+      <label for="episodeNum">Episode Number</label>
+      <input type="number" id="episodeNum" min="1" value="1" required />
+    </div>
+    <button onclick="generateLink()" class="primary-button">Load Episode</button>
+  </div>
+
+  <!-- Add this after the container div -->
+  <button class="back-button" id="backButton">
+    <i class="fas fa-arrow-left"></i> Back to Show Viewer
+  </button>
+
+  <div id="videoContainer">
+    <div class="video-wrapper">
+      <video id="videoPlayer">
+        Your browser does not support HTML5 video.
+      </video>
+      <div class="video-info">
+        <span id="currentShow"></span> - S<span id="currentSeason">1</span>E<span id="currentEpisode">1</span>
+      </div>
+      <div class="video-controls">
+        <button class="control-button" id="rewind5"><i class="fas fa-backward"></i> 5s</button>
+        <button class="control-button" id="playPause"><i class="fas fa-play"></i></button>
+        <button class="control-button" id="forward5"><i class="fas fa-forward"></i> 5s</button>
+        <div class="time-display">
+          <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+        </div>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-bar-filled" id="progressBarFilled"></div>
+        </div>
+        <button class="control-button" id="fullscreenToggle"><i class="fas fa-expand"></i></button>
+        <button class="control-button" id="volumeToggle"><i class="fas fa-volume-up"></i></button>
+      </div>
+    </div>
+    <div class="episode-controls">
+      <button onclick="previousEpisode()" class="secondary-button">Previous Episode</button>
+      <div class="progress-info">
+        Season <span id="currentSeason">1</span> Episode <span id="currentEpisode">1</span>
+      </div>
+      <button onclick="nextEpisode()" class="primary-button">Next Episode</button>
+    </div>
+    <div class="download-progress" id="downloadProgress"></div>
+  </div>
+
+  <!-- Add this HTML after your video container -->
+  <div id="showsHistory" class="shows-history"></div>
+
+  <div class="shows-history">
+    <h3>Recently Watched</h3>
+    <div id="showsHistory"></div>
+  </div>
+
+  <!-- Add this hidden input to your form -->
+  <!--<form id="contactForm" class="contact-form" action="https://formspree.io/f/xqapbzlj" method="POST">
+    <!-- Add this right after the form opening tag -->
+    <input type="hidden" name="_next" value="http://70.114.225.252:7002/thanks.html">
+    <!-- Replace yourdomain.com with your actual domain -->
+    
+    <!-- ...rest of your existing form fields... -->
+  </form>
+
+  <script>
+    // Store video progress
+    const PROGRESS_KEY = 'videoProgress';
+    const LAST_EPISODE_KEY = 'lastEpisode';
+    const SHOWS_HISTORY_KEY = 'showsHistory';
+    
+    // Replace the existing saveProgress function with this improved version
+    function saveProgress() {
+      const video = document.getElementById('videoPlayer');
+      const progress = {
+        show: document.getElementById('showName').value,
+        season: document.getElementById('seasonNum').value,
+        episode: document.getElementById('episodeNum').value,
+        timestamp: video.currentTime || 0
+      };
+      
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    }
+
+    function loadProgress() {
+      const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+      if (progress) {
+        const currentShow = document.getElementById('showName').value;
+        const currentSeason = document.getElementById('seasonNum').value;
+        const currentEpisode = document.getElementById('episodeNum').value;
+        
+        // Only restore progress if it's the same episode
+        if (progress.show === currentShow && 
+            progress.season === currentSeason && 
+            progress.episode === currentEpisode) {
+          const video = document.getElementById('videoPlayer');
+          video.currentTime = progress.timestamp;
+        }
+      }
+    }
+
+    // Video download and caching
+    // Replace the existing downloadVideo function with this improved version
+    async function downloadVideo(url) {
+      const progress = document.getElementById('downloadProgress');
+      progress.textContent = 'Starting download...';
+
+      try {
+        const response = await fetch(url, {
+          mode: 'cors',
+          headers: {
+            'Accept': 'video/mp4,video/*;q=0.9,*/*;q=0.8'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const contentLength = response.headers.get('Content-Length');
+        const reader = response.body.getReader();
+        let receivedLength = 0;
+        const chunks = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+          
+          chunks.push(value);
+          receivedLength += value.length;
+          
+          if (contentLength) {
+            const percentComplete = ((receivedLength / contentLength) * 100).toFixed(2);
+            progress.textContent = `Downloading: ${percentComplete}%`;
+          } else {
+            progress.textContent = `Downloaded: ${(receivedLength / 1048576).toFixed(2)} MB`;
+          }
+        }
+
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        const videoUrl = URL.createObjectURL(blob);
+        
+        progress.textContent = 'Download complete! Playing from local file.';
+        return videoUrl;
+
+      } catch (error) {
+        console.error('Download error:', error);
+        progress.textContent = `Download failed: ${error.message}. Playing from source...`;
+        return url;
+      }
+    }
+
+    function capitalizeWords(str) {
+      return str.replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    // Add this new function to handle video loading
+    function onVideoLoaded() {
+      const video = document.getElementById('videoPlayer');
+      const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+      
+      if (progress && 
+          progress.show === document.getElementById('showName').value &&
+          progress.season === document.getElementById('seasonNum').value &&
+          progress.episode === document.getElementById('episodeNum').value) {
+        video.currentTime = progress.timestamp;
+      }
+    }
+
+    // Add to your JavaScript section at the top
+    // Function to save show to history
+    function saveToHistory(show, season, episode) {
+      let history = JSON.parse(localStorage.getItem(SHOWS_HISTORY_KEY) || '[]');
+      
+      // Remove if already exists
+      history = history.filter(s => s.show !== show);
+      
+      // Add to beginning of array
+      history.unshift({ 
+        show, 
+        season, 
+        episode, 
+        lastWatched: new Date().toISOString()
+      });
+      
+      // Keep only last 10 shows
+      history = history.slice(0, 10);
+      
+      localStorage.setItem(SHOWS_HISTORY_KEY, JSON.stringify(history));
+      updateShowsHistory();
+    }
+
+    // Function to update the shows history UI
+    function updateShowsHistory() {
+      const history = JSON.parse(localStorage.getItem(SHOWS_HISTORY_KEY) || '[]');
+      const historyContainer = document.getElementById('showsHistory');
+      
+      if (!historyContainer) return;
+      
+      historyContainer.innerHTML = history.map(show => `
+        <div class="history-item" onclick="loadShow('${show.show}', ${show.season}, ${show.episode})">
+          <div class="history-title">${show.show}</div>
+          <div class="history-info">S${show.season} E${show.episode}</div>
+        </div>
+      `).join('');
+    }
+
+    // Function to load show from history
+    function loadShow(show, season, episode) {
+      document.getElementById('showName').value = show;
+      document.getElementById('seasonNum').value = season;
+      document.getElementById('episodeNum').value = episode;
+      generateLink();
+    }
+
+    // Update the generateLink function to include the new video loading handler
+    async function generateLink() {
+      let showName = document.getElementById("showName").value.trim();
+      let season = document.getElementById("seasonNum").value;
+      let episode = document.getElementById("episodeNum").value.padStart(2, '0');
+      
+      if (showName === "") {
+        alert("Please enter a show name.");
+        return;
+      }
+      
+      // Save to history
+      saveToHistory(showName, season, episode);
+      
+      // Get current progress to check if this is the same episode
+      const currentProgress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+      const isSameEpisode = currentProgress.show === showName && 
+                            currentProgress.season === season && 
+                            currentProgress.episode === episode;
+      
+      // Reset video time only for new episodes
+      const video = document.getElementById('videoPlayer');
+      if (!isSameEpisode) {
+        video.currentTime = 0;
+        // Clear the saved progress for this new episode
+        saveProgress();
+      }
+      
+      // Update progress info immediately
+      document.querySelectorAll('#currentSeason').forEach(el => el.textContent = season);
+      document.querySelectorAll('#currentEpisode').forEach(el => el.textContent = episode);
+      document.getElementById('currentShow').textContent = showName;
+      
+      let formattedShowName = capitalizeWords(showName).replace(/\s+/g, '_');
+      let url = `https://www.worthcrete.com/wp-content/uploads/DATA/ENGLISH_Seasons/${formattedShowName}/${formattedShowName}_S${season}/${formattedShowName}_S0${season}E${episode}-ENG-1.mp4`;
+      
+      const videoContainer = document.getElementById("videoContainer");
+      const videoPlayer = document.getElementById("videoPlayer");
+      
+      // Add event listener for video loading
+      videoPlayer.addEventListener('loadedmetadata', onVideoLoaded, { once: true });
+      
+      // Download and cache video
+      const localUrl = await downloadVideo(url);
+      videoPlayer.src = localUrl;
+      
+      videoContainer.style.display = "block";
+      setTimeout(() => {
+        videoContainer.style.opacity = 1;
+      }, 100);
+
+      // Update episode info
+      document.getElementById('currentSeason').textContent = season;
+      document.getElementById('currentEpisode').textContent = episode;
+      
+      // Save current episode
+      localStorage.setItem(LAST_EPISODE_KEY, JSON.stringify({
+        show: showName,
+        season: season,
+        episode: episode
+      }));
+
+      // Show video player and hide show viewer
+      showVideoPlayer();
+
+      // Auto-play video
+      video.play();
+      document.getElementById('playPause').innerHTML = '<i class="fas fa-pause"></i>';
+    }
+
+    function nextEpisode() {
+      const episodeInput = document.getElementById('episodeNum');
+      const seasonInput = document.getElementById('seasonNum');
+      
+      let episode = parseInt(episodeInput.value);
+      let season = parseInt(seasonInput.value);
+      
+      episode++;
+      
+      // Assume new season after episode 24
+      if (episode > 24) {
+        episode = 1;
+        season++;
+        seasonInput.value = season;
+      }
+      
+      episodeInput.value = episode;
+      generateLink();
+    }
+
+    function previousEpisode() {
+      const episodeInput = document.getElementById('episodeNum');
+      const seasonInput = document.getElementById('seasonNum');
+      
+      let episode = parseInt(episodeInput.value);
+      let season = parseInt(seasonInput.value);
+      
+      episode--;
+      
+      if (episode < 1) {
+        if (season > 1) {
+          episode = 24;
+          season--;
+          seasonInput.value = season;
+        } else {
+          episode = 1;
+        }
+      }
+      
+      episodeInput.value = episode;
+      generateLink();
+    }
+
+    // Save video progress periodically
+    document.getElementById('videoPlayer').addEventListener('timeupdate', (e) => {
+      // Save more frequently (every 5 seconds)
+      if (Math.floor(e.target.currentTime) % 5 === 0) {
+        saveProgress();
+      }
+    });
+
+    // Add event listener for when video stops playing
+    document.getElementById('videoPlayer').addEventListener('pause', () => {
+      saveProgress();
+    });
+
+    // Add these event listeners to handle errors and state changes
+    document.getElementById('videoPlayer').addEventListener('error', (e) => {
+      console.error('Video error:', e.target.error);
+      document.getElementById('downloadProgress').textContent = 
+        `Video error: ${e.target.error.message}. Try reloading.`;
+    });
+
+    // Add automatic retry for failed downloads
+    async function retryDownload(url, attempts = 3) {
+      for (let i = 0; i < attempts; i++) {
+        try {
+          return await downloadVideo(url);
+        } catch (error) {
+          console.error(`Download attempt ${i + 1} failed:`, error);
+          if (i === attempts - 1) throw error;
+          await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+        }
+      }
+    }
+
+    // Load saved progress on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      
+      // Auto-resume last episode
+      const lastEpisode = JSON.parse(localStorage.getItem(LAST_EPISODE_KEY));
+      if (lastEpisode) {
+        document.getElementById('showName').value = lastEpisode.show;
+        document.getElementById('seasonNum').value = lastEpisode.season;
+        document.getElementById('episodeNum').value = lastEpisode.episode;
+        generateLink();
+      }
+
+      // Update shows history
+      updateShowsHistory();
+      
+      // Handle /showtest URLs
+      if (window.location.pathname === '/showtest' || window.location.pathname === '/showtest.html') {
+        const lastEpisode = JSON.parse(localStorage.getItem(LAST_EPISODE_KEY));
+        if (lastEpisode) {
+          loadShow(lastEpisode.show, lastEpisode.season, lastEpisode.episode);
+        }
+      }
+    });
+
+    // Add this to your JavaScript section
+    // Video player controls
+    const video = document.getElementById('videoPlayer');
+    const playPauseBtn = document.getElementById('playPause');
+    const rewind5Btn = document.getElementById('rewind5');
+    const forward5Btn = document.getElementById('forward5');
+    const volumeBtn = document.getElementById('volumeToggle');
+    const progressBar = document.getElementById('progressBar');
+    const progressBarFilled = document.getElementById('progressBarFilled');
+    const currentTimeDisplay = document.getElementById('currentTime');
+    const durationDisplay = document.getElementById('duration');
+    const fullscreenBtn = document.getElementById('fullscreenToggle');
+
+    // Format time in MM:SS
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      seconds = Math.floor(seconds % 60);
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Update progress bar
+    video.addEventListener('timeupdate', () => {
+      const percentage = (video.currentTime / video.duration) * 100;
+      progressBarFilled.style.width = `${percentage}%`;
+      currentTimeDisplay.textContent = formatTime(video.currentTime);
+    });
+
+    // Set video duration
+    video.addEventListener('loadedmetadata', () => {
+      durationDisplay.textContent = formatTime(video.duration);
+    });
+
+    // Play/Pause
+    playPauseBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      } else {
+        video.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+      }
+    });
+
+    // Skip 5 seconds
+    rewind5Btn.addEventListener('click', () => {
+      video.currentTime = Math.max(video.currentTime - 5, 0);
+    });
+
+    forward5Btn.addEventListener('click', () => {
+      video.currentTime = Math.min(video.currentTime + 5, video.duration);
+    });
+
+    // Volume control
+    volumeBtn.addEventListener('click', () => {
+      if (video.muted) {
+        video.muted = false;
+        volumeBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      } else {
+        video.muted = true;
+        volumeBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+      }
+    });
+
+    // Click on progress bar
+    progressBar.addEventListener('click', (e) => {
+      const pos = (e.pageX - progressBar.offsetLeft) / progressBar.offsetWidth;
+      video.currentTime = pos * video.duration;
+    });
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (document.activeElement.tagName === 'INPUT') return;
+      
+      switch(e.key) {
+        case ' ':
+          e.preventDefault();
+          if (video.paused) {
+            video.play();
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          } else {
+            video.pause();
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+          }
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          video.currentTime = Math.max(video.currentTime - 5, 0);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          video.currentTime = Math.min(video.currentTime + 5, video.duration);
+          break;
+        case 'f':
+        case 'F':
+          e.preventDefault();
+          toggleFullscreen();
+          break;
+      }
+    });
+
+    // Add fullscreen toggle function
+    function toggleFullscreen() {
+      const wrapper = document.querySelector('.video-wrapper');
+      
+      if (!document.fullscreenElement) {
+        wrapper.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // Add fullscreen change event listener
+    document.addEventListener('fullscreenchange', () => {
+      fullscreenBtn.innerHTML = document.fullscreenElement ? 
+        '<i class="fas fa-compress"></i>' : 
+        '<i class="fas fa-expand"></i>';
+    });
+
+    // Add this function to handle fullscreen exit
+    function onFullscreenExit() {
+      const videoContainer = document.getElementById('videoContainer');
+      videoContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Update the fullscreen change event listener
+    document.addEventListener('fullscreenchange', () => {
+      fullscreenBtn.innerHTML = document.fullscreenElement ? 
+        '<i class="fas fa-compress"></i>' : 
+        '<i class="fas fa-expand"></i>';
+      
+      if (!document.fullscreenElement) {
+        onFullscreenExit();
+      }
+    });
+
+    // Update next episode function to not hardcode season length
+    function nextEpisode() {
+      const episodeInput = document.getElementById('episodeNum');
+      const seasonInput = document.getElementById('seasonNum');
+      
+      let episode = parseInt(episodeInput.value);
+      let season = parseInt(seasonInput.value);
+      
+      episode++;
+      // Try to load next episode, if it fails, try next season
+      episodeInput.value = episode;
+      generateLink().catch(() => {
+        episode = 1;
+        season++;
+        seasonInput.value = season;
+        episodeInput.value = episode;
+        generateLink();
+      });
+    }
+
+    // Update generateLink function to throw error if video 404s
+    async function generateLink() {
+      let showName = document.getElementById("showName").value.trim();
+      let season = document.getElementById("seasonNum").value;
+      let episode = document.getElementById("episodeNum").value.padStart(2, '0');
+      
+      if (showName === "") {
+        alert("Please enter a show name.");
+        return;
+      }
+      
+      // Save to history
+      saveToHistory(showName, season, episode);
+      
+      // Get current progress to check if this is the same episode
+      const currentProgress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+      const isSameEpisode = currentProgress.show === showName && 
+                            currentProgress.season === season && 
+                            currentProgress.episode === episode;
+      
+      // Reset video time only for new episodes
+      const video = document.getElementById('videoPlayer');
+      if (!isSameEpisode) {
+        video.currentTime = 0;
+        // Clear the saved progress for this new episode
+        saveProgress();
+      }
+      
+      // Update progress info immediately
+      document.querySelectorAll('#currentSeason').forEach(el => el.textContent = season);
+      document.querySelectorAll('#currentEpisode').forEach(el => el.textContent = episode);
+      document.getElementById('currentShow').textContent = showName;
+      
+      let formattedShowName = capitalizeWords(showName).replace(/\s+/g, '_');
+      let url = `https://www.worthcrete.com/wp-content/uploads/DATA/ENGLISH_Seasons/${formattedShowName}/${formattedShowName}_S${season}/${formattedShowName}_S0${season}E${episode}-ENG-1.mp4`;
+      
+      const videoContainer = document.getElementById("videoContainer");
+      const videoPlayer = document.getElementById("videoPlayer");
+      
+      // Add event listener for video loading
+      videoPlayer.addEventListener('loadedmetadata', onVideoLoaded, { once: true });
+      
+      // Download and cache video
+      const localUrl = await downloadVideo(url);
+      videoPlayer.src = localUrl;
+      
+      videoContainer.style.display = "block";
+      setTimeout(() => {
+        videoContainer.style.opacity = 1;
+      }, 100);
+
+      // Update episode info
+      document.getElementById('currentSeason').textContent = season;
+      document.getElementById('currentEpisode').textContent = episode;
+      
+      // Save current episode
+      localStorage.setItem(LAST_EPISODE_KEY, JSON.stringify({
+        show: showName,
+        season: season,
+        episode: episode
+      }));
+
+      // Show video player and hide show viewer
+      showVideoPlayer();
+
+      // Auto-play video
+      video.play();
+      document.getElementById('playPause').innerHTML = '<i class="fas fa-pause"></i>';
+    }
+
+    // Add click handler for video wrapper
+    const videoWrapper = document.querySelector('.video-wrapper');
+    videoWrapper.addEventListener('click', (e) => {
+      // Ignore clicks on controls
+      if (!e.target.closest('.video-controls')) {
+        e.preventDefault(); // Prevent any default selection
+        if (video.paused) {
+          video.play();
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+          video.pause();
+          playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+      }
+    });
+
+    // Add this to prevent any selection when clicking
+    videoWrapper.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    // Add cursor style for video wrapper
+
+    // Add this to prevent controls from triggering play/pause
+    document.querySelector('.video-controls').addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Add to your JavaScript section
+    function showVideoPlayer() {
+      const container = document.querySelector('.container');
+      const videoContainer = document.getElementById('videoContainer');
+      const backButton = document.getElementById('backButton');
+      
+      container.style.display = 'none';
+      videoContainer.style.display = 'block';
+      backButton.style.display = 'block';
+      
+      setTimeout(() => {
+        videoContainer.style.opacity = 1;
+      }, 100);
+    }
+
+    function showShowViewer() {
+      const container = document.querySelector('.container');
+      const videoContainer = document.getElementById('videoContainer');
+      const backButton = document.getElementById('backButton');
+      const video = document.getElementById('videoPlayer');
+      
+      video.pause();
+      container.style.display = 'block';
+      videoContainer.style.opacity = 0;
+      backButton.style.display = 'none';
+      
+      setTimeout(() => {
+        videoContainer.style.display = 'none';
+      }, 800);
+    }
+
+    // Add back button click handler
+    document.getElementById('backButton').addEventListener('click', showShowViewer);
+
+    // Update fullscreen styles when entering/exiting
+    document.addEventListener('fullscreenchange', () => {
+      const videoWrapper = document.querySelector('.video-wrapper');
+      if (document.fullscreenElement) {
+        videoWrapper.style.background = 'black';
+        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+      } else {
+        videoWrapper.style.background = '';
+        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+        onFullscreenExit();
+      }
+    });
+
+    // Add this near your other video control code
+    let isDragging = false;
+
+    // Handle progress bar drag interactions
+    progressBar.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      updateVideoProgress(e);
+      document.body.style.userSelect = 'none'; // Prevent text selection while dragging
+      showControls(); // Show controls while dragging
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        updateVideoProgress(e);
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        document.body.style.userSelect = ''; // Re-enable text selection
+        if (document.fullscreenElement) {
+          controlsTimeout = setTimeout(hideControls, CONTROLS_HIDE_DELAY);
+        }
+      }
+    });
+
+    // Update video progress based on mouse position
+    function updateVideoProgress(e) {
+      const rect = progressBar.getBoundingClientRect();
+      const pos = Math.min(Math.max(0, (e.pageX - rect.left) / rect.width), 1);
+      video.currentTime = pos * video.duration;
+      progressBarFilled.style.width = `${pos * 100}%`;
+    }
+
+    // Update your existing click handler to use the new function
+    progressBar.removeEventListener('click', null); // Remove old click handler
+    progressBar.addEventListener('click', updateVideoProgress);
+
+    // Add these variables at the top of your JavaScript
+    let controlsTimeout;
+    const CONTROLS_HIDE_DELAY = 1000; // 1 second
+
+    // Add this function to handle controls visibility
+    function hideControls() {
+      if (document.fullscreenElement && !isDragging) {
+        const controls = document.querySelector('.video-controls');
+        const info = document.querySelector('.video-info');
+        controls.style.opacity = '0';
+        info.style.opacity = '0';
+      }
+    }
+
+    function showControls() {
+      const controls = document.querySelector('.video-controls');
+      const info = document.querySelector('.video-info');
+      controls.style.opacity = '1';
+      info.style.opacity = '1';
+      
+      clearTimeout(controlsTimeout);
+      if (document.fullscreenElement && !isDragging) {
+        controlsTimeout = setTimeout(hideControls, CONTROLS_HIDE_DELAY);
+      }
+    }
+
+    // Update the video wrapper event listeners
+    videoWrapper.addEventListener('mousemove', showControls);
+    videoWrapper.addEventListener('mouseenter', showControls);
+    videoWrapper.addEventListener('mouseleave', () => {
+      if (document.fullscreenElement) {
+        hideControls();
+      }
+    });
+
+    // Update the fullscreenchange event listener
+    document.addEventListener('fullscreenchange', () => {
+      const videoWrapper = document.querySelector('.video-wrapper');
+      if (document.fullscreenElement) {
+        videoWrapper.style.background = 'black';
+        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        controlsTimeout = setTimeout(hideControls, CONTROLS_HIDE_DELAY);
+      } else {
+        videoWrapper.style.background = '';
+        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+        clearTimeout(controlsTimeout);
+        showControls();
+        onFullscreenExit();
+      }
+    });
+
+    // Add this to the video controls click handler to prevent hiding while interacting
+    document.querySelector('.video-controls').addEventListener('mouseover', () => {
+      clearTimeout(controlsTimeout);
+    });
+  </script>
+</body>
+</html>
