@@ -3,47 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avi's Website</title>
+    <title>Avi's Portfolio</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Avi's Website</h1>
-        </header>
-        <main>
-            <section class="hero">
-                <h2>Welcome!</h2>
-                <p>This is my personal website where I share some tools and projects I've been working on. Feel free to explore!</p>
-            </section>
-            <section class="features">
-                <h3>Explore my projects:</h3>
-                <div class="projects-grid">
-                    <a href="serverstarter.html" class="project-card">
-                        <h4>Server Starter</h4>
-                        <p>Start the server (passworded)</p>
-                    </a>
+    <div class="noise"></div>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#home" class="logo">Avi</a>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#projects" class="nav-link">Projects</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
 
-                    <a href="todolist.html" class="project-card">
-                        <h4>To-Do List</h4>
-                        <p>Organize your tasks.</p>
-                        
-                    </a>
-                    <a href="gradetools.html" class="project-card">
-                        <h4>Grade Tools</h4>
-                        <p>Grade Tools to Help Frontline (for AISD)</p>
-                    </a>
-                    <a href="enchant.html" class="project-card">
-                        <h4>Enchant Calculator</h4>
-                        <p>Calculates enchants (not mine)</p>
-                    </a>
+    <div class="container">
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="glitch" data-text="Welcome to Avi's Lab">Welcome to Avi's Lab</h1>
+                <p class="hero-text">I am a pretty curious person</p>
+                <div class="hero-cta">
+                    <a href="#projects" class="cta-button">Explore Projects</a>
                 </div>
-            </section>
-        </main>
-        <footer>
-            <p>© 2024 Avi's Website</p>
-        </footer>
+            </div>
+            <div class="hero-shape"></div>
+        </section>
+
+        <section id="projects" class="projects">
+            <h2 class="section-title">Featured Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card" data-tilt>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <h3>Server</h3>
+                        <p>Secure server management portal</p>
+                        <div class="card-footer">
+                            <span class="card-button">
+                                Coming Soon <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card" data-tilt>
+                    <a href="todolist.html" target="_blank" ></a>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3>To-Do List</h3>
+                        <p>task management for cooked dopamine receptors    </p>
+                        <div class="card-footer">
+                            <a href="todolist.html" class="card-button">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card" data-tilt>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Grade Tools</h3>
+                        <p>grading utilities for AISD Frontline</p>
+                        <span class="card-button">
+                            Coming Soon <i class="fas fa-arrow-right"></i>
+                        <div class="card-footer">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card" data-tilt>
+                    <a href="show.html" target="_blank"></a>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h3>Show Scraper</h3>
+                        <p>Fast show finder using various sources (movies coming soon)</p>
+                        <div class="card-footer">
+                            <a href="show.html" class="card-button">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card" data-tilt>
+                    <a href="enchant.html" target="_blank"></a>
+                    <div class="card-content">
+                        <div class="card-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h3>Enchant Calculator</h3>
+                        <p> Minecraft enchantment calculator</p>
+                        <div class="card-footer">
+                            <a href="enchant.html" class="card-button">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card coming-soon" data-tilt>
+                    <div class="card-content">
+                        <h3>Well, this is awkward</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-text">
+                <p>© 2024 Avi's Lab. Crafted with <i class="fas fa-heart"></i></p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/protofr" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="mailto:avyukt.sharma@gmail.com"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script>
+        VanillaTilt.init(document.querySelectorAll(".project-card"), {
+            max: 10,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.3,
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-container')) {
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // Update active link
+        const navLinksAll = document.querySelectorAll('.nav-link');
+        navLinksAll.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinksAll.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>
