@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Avi's Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="noise"></div>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">Avi</a>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="nav-links">
+                <a href="index.html#home" class="nav-link">Home</a>
+                <a href="index.html#projects" class="nav-link">Projects</a>
+                <a href="contact.html" class="nav-link active">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="contact-section">
+        <div class="contact-card">
+            <h2 class="section-title">Contact Me</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <div>
+                        <div class="contact-label">Name</div>
+                        <div>Avyukt Sharma</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <div class="contact-label">Email</div>
+                        <a href="mailto:avyuktsharma30@gmail.com">avyuktsharma30@gmail.com</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <div class="contact-label">Phone</div>
+                        <a href="tel:+17377811705">+1 (737) 781-1705</a>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <div class="contact-label">Location</div>
+                        <div>Austin, TX</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <div>
+                        <div class="contact-label">GitHub</div>
+                        <a href="https://github.com/protofr" target="_blank">github.com/protofr</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-text">
+                <p>© 2024 Avi's Lab. Crafted with <i class="fas fa-heart"></i></p>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/protofr" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="mailto:avyukt.sharma@gmail.com"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add JavaScript for mobile menu -->
+    <script>
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-container')) {
+                navLinks.classList.remove('active');
+            }
+        });
+
+        const navLinksAll = document.querySelectorAll('.nav-link');
+        navLinksAll.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinksAll.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
