@@ -133,8 +133,9 @@ body {
 
 .hero-text {
     font-size: 1.5rem;
-    color: var(--text-secondary);
+    color: var(--text);
     margin: 30px 0;
+    min-height: 40px; /* Prevent layout shift */
 }
 
 .cta-button {
@@ -581,4 +582,19 @@ a:visited {
     opacity: 1;
     visibility: visible;
     bottom: -25px;
+}
+
+/* Add these styles */
+.typewriter {
+    position: relative;
+    display: inline-block;
+    color: var(--primary);
+    border-right: 2px solid var(--primary);
+    padding-right: 5px;
+    animation: blink 0.75s step-end infinite;
+}
+
+@keyframes blink {
+    from, to { border-color: transparent }
+    50% { border-color: var(--primary); }
 }
