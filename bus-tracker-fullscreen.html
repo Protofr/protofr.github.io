@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Bus Tracker">
-  <meta name="theme-color" content="#007AFF">
+  <meta name="theme-color" content="#000000">
   <title>Live Bus Tracker</title>
   
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23007AFF'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='90' font-family='-apple-system, sans-serif' font-weight='bold'>🚌</text></svg>">
@@ -65,8 +65,8 @@
     }
 
     #map {
-      /* CRITICAL: Map extends behind status bar for full coverage */
-      position: absolute;
+      /* CRITICAL: Map covers ENTIRE screen - no gaps anywhere */
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
@@ -76,6 +76,9 @@
       z-index: 1;
       margin: 0;
       padding: 0;
+      /* Ensure map extends into all safe areas */
+      border: none;
+      outline: none;
     }
 
     .leaflet-control-attribution {
@@ -83,9 +86,9 @@
     }
 
     .control-panel {
-      position: absolute;
-      /* CRITICAL: Position below status bar with proper safe area */
-      top: calc(env(safe-area-inset-top, 50px) + 10px);
+      position: fixed;
+      /* CRITICAL: Position with proper safe area for status bar */
+      top: calc(env(safe-area-inset-top, 44px) + 10px);
       left: 10px;
       right: 10px;
       z-index: 1000;
@@ -135,9 +138,9 @@
     }
 
     .bus-selector {
-      position: absolute;
+      position: fixed;
       /* CRITICAL: Position below control panel with proper safe area */
-      top: calc(env(safe-area-inset-top, 50px) + 85px);
+      top: calc(env(safe-area-inset-top, 44px) + 85px);
       left: 50%;
       transform: translateX(-50%);
       z-index: 999;
@@ -178,7 +181,7 @@
     }
 
     .bottom-ui-container {
-      position: absolute;
+      position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
@@ -415,12 +418,12 @@
       
       .control-panel {
         /* Position below status bar */
-        top: calc(env(safe-area-inset-top, 50px) + 10px);
+        top: calc(env(safe-area-inset-top, 44px) + 10px);
       }
       
       .bus-selector {
         /* Position below control panel */
-        top: calc(env(safe-area-inset-top, 50px) + 85px);
+        top: calc(env(safe-area-inset-top, 44px) + 85px);
       }
       
       .bottom-ui-container {
