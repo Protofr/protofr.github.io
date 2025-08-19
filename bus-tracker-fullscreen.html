@@ -34,7 +34,7 @@
     }
 
     html {
-      /* CRITICAL: Full screen coverage including status bar */
+      /* CRITICAL: Full screen coverage - no background to prevent black bars */
       background: transparent;
       margin: 0;
       padding: 0;
@@ -46,10 +46,11 @@
     }
 
     body {
-      /* CRITICAL: Full screen coverage including status bar */
+      /* CRITICAL: Full screen coverage - extends into all safe areas */
       margin: 0;
       padding: 0;
-      height: 100%;
+      height: 100vh;
+      height: -webkit-fill-available;
       width: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow: hidden;
@@ -381,7 +382,7 @@
       50% { transform: scale(1.1); }
     }
 
-    /* CRITICAL: iOS full-screen handling */
+    /* CRITICAL: iOS full-screen handling - covers entire screen */
     @supports (-webkit-touch-callout: none) {
       html, body {
         /* Force absolute full height on iOS */
@@ -389,29 +390,43 @@
         height: -webkit-fill-available;
         overflow: hidden;
         position: fixed;
-        width: 100%;
-        /* Ensure no background shows through */
+        width: 100vw;
+        /* CRITICAL: Transparent background to prevent any bars */
         background: transparent;
+        /* Extend into all safe areas */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
       
       #map {
-        /* Map covers entire screen including status bar area */
+        /* Map covers entire screen including ALL safe areas */
         height: 100vh;
         height: -webkit-fill-available;
         width: 100vw;
-        /* CRITICAL: Extend into status bar area */
-        top: calc(-1 * env(safe-area-inset-top, 0px));
-        padding-top: env(safe-area-inset-top, 0px);
+        /* CRITICAL: Cover full screen including status bar and home indicator */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        position: fixed;
       }
       
       .control-panel {
-        /* Adjust for extended map */
+        /* Position below status bar */
         top: calc(env(safe-area-inset-top, 50px) + 10px);
       }
       
       .bus-selector {
-        /* Adjust for extended map */
+        /* Position below control panel */
         top: calc(env(safe-area-inset-top, 50px) + 85px);
+      }
+      
+      .bottom-ui-container {
+        /* CRITICAL: Proper bottom positioning without creating black bar */
+        bottom: 0;
+        padding-bottom: calc(15px + env(safe-area-inset-bottom, 20px));
       }
     }
 
