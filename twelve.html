@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trig Values Table - π/12 Increments</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+      // Tailwind Custom Configuration
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              indigo: {
+                50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+                400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+                800: '#3730a3', 900: '#312e81', 950: '#1e1b4b',
+              },
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
+
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="max-w-4xl mx-auto">
+
+            <header class="text-center mb-8">
+                <h1 class="text-4xl sm:text-5xl font-bold text-indigo-600 dark:text-indigo-400">Trigonometric Values</h1>
+                <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Sine and Cosine for angles in 15° (π/12) increments.</p>
+            </header>
+
+            <main>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Degrees</th>
+                                    <th scope="col" class="px-6 py-3">Radians</th>
+                                    <th scope="col" class="px-6 py-3 font-mono">sin(θ)</th>
+                                    <th scope="col" class="px-6 py-3 font-mono">cos(θ)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">0°</td>
+                                    <td class="px-6 py-4 font-mono">0</td>
+                                    <td class="px-6 py-4 font-mono">0</td>
+                                    <td class="px-6 py-4 font-mono">1</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">15°</td>
+                                    <td class="px-6 py-4 font-mono">π/12</td>
+                                    <td class="px-6 py-4 font-mono">(√6-√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">(√6+√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">30°</td>
+                                    <td class="px-6 py-4 font-mono">π/6</td>
+                                    <td class="px-6 py-4 font-mono">1/2</td>
+                                    <td class="px-6 py-4 font-mono">√3/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">45°</td>
+                                    <td class="px-6 py-4 font-mono">π/4</td>
+                                    <td class="px-6 py-4 font-mono">√2/2</td>
+                                    <td class="px-6 py-4 font-mono">√2/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">60°</td>
+                                    <td class="px-6 py-4 font-mono">π/3</td>
+                                    <td class="px-6 py-4 font-mono">√3/2</td>
+                                    <td class="px-6 py-4 font-mono">1/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">75°</td>
+                                    <td class="px-6 py-4 font-mono">5π/12</td>
+                                    <td class="px-6 py-4 font-mono">(√6+√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">(√6-√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">90°</td>
+                                    <td class="px-6 py-4 font-mono">π/2</td>
+                                    <td class="px-6 py-4 font-mono">1</td>
+                                    <td class="px-6 py-4 font-mono">0</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">105°</td>
+                                    <td class="px-6 py-4 font-mono">7π/12</td>
+                                    <td class="px-6 py-4 font-mono">(√6+√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">-(√6-√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">120°</td>
+                                    <td class="px-6 py-4 font-mono">2π/3</td>
+                                    <td class="px-6 py-4 font-mono">√3/2</td>
+                                    <td class="px-6 py-4 font-mono">-1/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">135°</td>
+                                    <td class="px-6 py-4 font-mono">3π/4</td>
+                                    <td class="px-6 py-4 font-mono">√2/2</td>
+                                    <td class="px-6 py-4 font-mono">-√2/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">150°</td>
+                                    <td class="px-6 py-4 font-mono">5π/6</td>
+                                    <td class="px-6 py-4 font-mono">1/2</td>
+                                    <td class="px-6 py-4 font-mono">-√3/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">165°</td>
+                                    <td class="px-6 py-4 font-mono">11π/12</td>
+                                    <td class="px-6 py-4 font-mono">(√6-√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">-(√6+√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">180°</td>
+                                    <td class="px-6 py-4 font-mono">π</td>
+                                    <td class="px-6 py-4 font-mono">0</td>
+                                    <td class="px-6 py-4 font-mono">-1</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">195°</td>
+                                    <td class="px-6 py-4 font-mono">13π/12</td>
+                                    <td class="px-6 py-4 font-mono">-(√6-√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">-(√6+√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">210°</td>
+                                    <td class="px-6 py-4 font-mono">7π/6</td>
+                                    <td class="px-6 py-4 font-mono">-1/2</td>
+                                    <td class="px-6 py-4 font-mono">-√3/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">225°</td>
+                                    <td class="px-6 py-4 font-mono">5π/4</td>
+                                    <td class="px-6 py-4 font-mono">-√2/2</td>
+                                    <td class="px-6 py-4 font-mono">-√2/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">240°</td>
+                                    <td class="px-6 py-4 font-mono">4π/3</td>
+                                    <td class="px-6 py-4 font-mono">-√3/2</td>
+                                    <td class="px-6 py-4 font-mono">-1/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">255°</td>
+                                    <td class="px-6 py-4 font-mono">17π/12</td>
+                                    <td class="px-6 py-4 font-mono">-(√6+√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">-(√6-√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">270°</td>
+                                    <td class="px-6 py-4 font-mono">3π/2</td>
+                                    <td class="px-6 py-4 font-mono">-1</td>
+                                    <td class="px-6 py-4 font-mono">0</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">285°</td>
+                                    <td class="px-6 py-4 font-mono">19π/12</td>
+                                    <td class="px-6 py-4 font-mono">-(√6+√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">(√6-√2)/4</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">300°</td>
+                                    <td class="px-6 py-4 font-mono">5π/3</td>
+                                    <td class="px-6 py-4 font-mono">-√3/2</td>
+                                    <td class="px-6 py-4 font-mono">1/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">315°</td>
+                                    <td class="px-6 py-4 font-mono">7π/4</td>
+                                    <td class="px-6 py-4 font-mono">-√2/2</td>
+                                    <td class="px-6 py-4 font-mono">√2/2</td>
+                                </tr>
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">330°</td>
+                                    <td class="px-6 py-4 font-mono">11π/6</td>
+                                    <td class="px-6 py-4 font-mono">-1/2</td>
+                                    <td class="px-6 py-4 font-mono">√3/2</td>
+                                </tr>
+                                <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">345°</td>
+                                    <td class="px-6 py-4 font-mono">23π/12</td>
+                                    <td class="px-6 py-4 font-mono">-(√6-√2)/4</td>
+                                    <td class="px-6 py-4 font-mono">(√6+√2)/4</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="text-center mt-8 text-gray-500 dark:text-gray-400">
+                <p>A reference for your trigonometric studies.</p>
+            </footer>
+
+        </div>
+    </div>
+
+</body>
+</html>
