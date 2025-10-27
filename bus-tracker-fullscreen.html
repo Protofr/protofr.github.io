@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bus Tracker">
+  <meta name="theme-color" content="#000000">
+  <title>Live Bus Tracker</title>
+  
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23007AFF'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='90' font-family='-apple-system, sans-serif' font-weight='bold'>🚌</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23007AFF'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='50' font-family='-apple-system, sans-serif'>🚌</text></svg>">
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary-color: #007AFF;
+      --danger-color: #FF3B30;
+      --bg-glass: rgba(242, 242, 247, 0.85);
+      --bg-dark-glass: rgba(28, 28, 30, 0.85);
+      --text-primary: #000000;
+      --text-secondary: #666666;
+      --text-primary-dark-theme: #FFFFFF;
+      --text-secondary-dark-theme: #a0a0a0;
+      --border-radius: 14px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      /* CRITICAL: Full screen coverage - no background to prevent black bars */
+      background: transparent;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      /* CRITICAL: Full screen coverage - extends into all safe areas */
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      height: -webkit-fill-available;
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      background: transparent;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      -webkit-overflow-scrolling: touch;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    #map {
+      /* CRITICAL: Map covers ENTIRE screen - no gaps anywhere */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      margin: 0;
+      padding: 0;
+      /* Ensure map extends into all safe areas */
+      border: none;
+      outline: none;
+    }
+
+    .leaflet-control-attribution {
+      display: none !important;
+    }
+
+    .control-panel {
+      position: fixed;
+      /* CRITICAL: Position with proper safe area for status bar */
+      top: calc(env(safe-area-inset-top, 44px) + 10px);
+      left: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .panel-content {
+      padding: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .control-button {
+      flex: 1;
+      padding: 12px 8px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease, background-color 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .control-button.primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .control-button.secondary {
+      background: rgba(0, 122, 255, 0.15);
+      color: var(--primary-color);
+    }
+
+    .control-button:active {
+      transform: scale(0.95);
+    }
+
+    .bus-selector {
+      position: fixed;
+      /* CRITICAL: Position below control panel with proper safe area */
+      top: calc(env(safe-area-inset-top, 44px) + 85px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      background: var(--bg-dark-glass);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--border-radius);
+      font-size: 1.1em;
+      font-weight: 600;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      box-shadow: var(--shadow);
+      white-space: nowrap;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+    }
+
+    .bus-selector.visible {
+      opacity: 1;
+    }
+
+    .bus-selector:active {
+      transform: translateX(-50%) scale(0.97);
+    }
+
+    .bus-selector b {
+      color: #5EADFF;
+    }
+
+    .chevron {
+      font-size: 0.7em;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .bottom-ui-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      /* CRITICAL: Proper bottom safe area handling */
+      padding: 0 15px calc(15px + env(safe-area-inset-bottom, 20px));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 1000;
+      min-height: calc(60px + env(safe-area-inset-bottom, 20px));
+    }
+
+    .bottom-ui-element {
+      background: var(--bg-glass);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+    }
+
+    .countdown {
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      color: var(--text-secondary);
+    }
+
+    .layer-toggle-button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 0.9em;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 3000;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 4000;
+      background: var(--bg-dark-glass);
+      color: var(--text-primary-dark-theme);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      width: calc(100% - 40px);
+      max-width: 350px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translate(-50%, -40%);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .modal.visible,
+    .modal-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal.visible {
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 1.2em;
+    }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .modal-body h2 {
+      text-align: center;
+      margin: 0 0 8px 0;
+      font-weight: 600;
+    }
+
+    .modal-body p {
+      margin: 0 0 16px 0;
+      text-align: center;
+      color: var(--text-secondary-dark-theme);
+      line-height: 1.4;
+    }
+
+    .bus-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 25vh;
+      overflow-y: auto;
+    }
+
+    .bus-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .bus-list-item.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .delete-bus-btn {
+      background: var(--danger-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .add-bus-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .ios-input {
+      flex-grow: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      color: var(--text-primary-dark-theme);
+      -webkit-appearance: none;
+      text-align: center;
+    }
+
+    .ios-input::placeholder {
+      color: var(--text-secondary-dark-theme);
+    }
+
+    .add-bus-form .control-button {
+      flex-shrink: 0;
+      padding: 12px 16px;
+    }
+    
+    .bus-tooltip {
+      background: var(--bg-dark-glass);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+    }
+
+    .bus-marker-icon {
+      background: linear-gradient(135deg, #007AFF, #0056CC);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: 0 6px 20px rgba(0,122,255,0.4), 0 0 0 2px rgba(0,122,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: transform 0.5s ease;
+      animation: busPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes busPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* CRITICAL: iOS full-screen handling - covers entire screen */
+    @supports (-webkit-touch-callout: none) {
+      html, body {
+        /* Force absolute full height on iOS */
+        height: 100vh;
+        height: -webkit-fill-available;
+        overflow: hidden;
+        position: fixed;
+        width: 100vw;
+        /* CRITICAL: Transparent background to prevent any bars */
+        background: transparent;
+        /* Extend into all safe areas */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+      
+      #map {
+        /* Map covers entire screen including ALL safe areas */
+        height: 100vh;
+        height: -webkit-fill-available;
+        width: 100vw;
+        /* CRITICAL: Cover full screen including status bar and home indicator */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        position: fixed;
+      }
+      
+      .control-panel {
+        /* Position below status bar */
+        top: calc(env(safe-area-inset-top, 44px) + 10px);
+      }
+      
+      .bus-selector {
+        /* Position below control panel */
+        top: calc(env(safe-area-inset-top, 44px) + 85px);
+      }
+      
+      .bottom-ui-container {
+        /* CRITICAL: Proper bottom positioning without creating black bar */
+        bottom: 0;
+        padding-bottom: calc(15px + env(safe-area-inset-bottom, 20px));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .control-panel {
+        left: 5px;
+        right: 5px;
+      }
+      
+      .bottom-ui-container {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="control-panel">
+    <div class="panel-content">
+      <div class="button-row">
+        <button id="centerBusBtn" class="control-button primary">📍 Bus</button>
+        <button id="centerOverviewBtn" class="control-button primary">🗺️ Overview</button>
+        <button id="refreshBtn" class="control-button secondary">🔄 Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="busSelector" class="bus-selector">
+    <span>No Bus Selected</span>
+    <span class="chevron">▼</span>
+  </button>
+  
+  <div id="map"></div>
+  
+  <div class="bottom-ui-container">
+    <div id="countdown" class="countdown bottom-ui-element">
+      Next update: <span id="countdownValue">--</span>s
+    </div>
+    <button id="layerToggleBtn" class="layer-toggle-button bottom-ui-element">Street</button>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop"></div>
+  
+  <div id="welcomeModal" class="modal">
+    <div class="modal-body">
+      <h2>Welcome to Bus Tracker</h2>
+      <p>To get started, add your first bus number below.</p>
+      <div class="add-bus-form">
+        <input type="number" id="welcomeBusIdInput" class="ios-input" placeholder="e.g., 2429" inputmode="numeric">
+        <button id="welcomeAddBusBtn" class="control-button primary">Add Bus</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="manageBusesModal" class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Manage Buses</h2>
+    </div>
+    <div class="modal-body">
+      <ul id="busList" class="bus-list"></ul>
+      <div class="add-bus-form">
+        <input type="number" id="manageBusIdInput" class="ios-input" placeholder="Add bus number..." inputmode="numeric">
+        <button id="manageAddBusBtn" class="control-button primary">+</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const CONFIG = {
+        sessionId: "0f529fdb-41e9-4c98-a9a6-ba8bd38873b6",
+        chdId: 3918682,
+        refreshInterval: 2000,
+        schoolLat: 30.257187,
+        schoolLon: -97.681357,
+        SATELLITE_TILE_URL: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        STREET_TILE_URL: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+      };
+
+      const state = {
+        map: null,
+        markers: { buses: {} },
+        buses: [],
+        currentBusId: null,
+        isLoading: false,
+        countdownInterval: null
+      };
+      
+      const DOMElements = {
+        busSelector: document.getElementById('busSelector'),
+        modalBackdrop: document.getElementById('modalBackdrop'),
+        welcomeModal: document.getElementById('welcomeModal'),
+        manageBusesModal: document.getElementById('manageBusesModal'),
+        welcomeBusIdInput: document.getElementById('welcomeBusIdInput'),
+        welcomeAddBusBtn: document.getElementById('welcomeAddBusBtn'),
+        busList: document.getElementById('busList'),
+        manageBusIdInput: document.getElementById('manageBusIdInput'),
+        manageAddBusBtn: document.getElementById('manageAddBusBtn'),
+        layerToggleBtn: document.getElementById('layerToggleBtn'),
+      };
+      
+      const markerIcons = {
+        bus: L.divIcon({
+          html: '<div class="bus-marker-icon">🚌</div>',
+          className: '',
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
+        }),
+        home: L.divIcon({
+          html: '<div style="font-size:18px;width:36px;height:36px;background:linear-gradient(135deg, #34C759, #2DB84A);border-radius:50%;border:3px solid white;box-shadow:0 4px 15px rgba(52,199,89,0.4);display:flex;align-items:center;justify-content:center;">🏠</div>',
+          className: '',
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        }),
+        school: L.divIcon({
+          html: '<div style="font-size:18px;width:36px;height:36px;background:linear-gradient(135deg, #FF9500, #FF7A00);border-radius:50%;border:3px solid white;box-shadow:0 4px 15px rgba(255,149,0,0.4);display:flex;align-items:center;justify-content:center;">🏫</div>',
+          className: '',
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        }),
+      };
+
+      function loadBuses() {
+        state.buses = JSON.parse(localStorage.getItem('savedBuses') || '[]');
+        if (state.buses.length === 0) {
+          toggleModal('welcomeModal', true);
+        } else {
+          selectBus(state.buses[0].id, true);
+        }
+      }
+
+      function saveBuses() {
+        localStorage.setItem('savedBuses', JSON.stringify(state.buses));
+      }
+
+      function addBus(busIdStr) {
+        const busId = busIdStr.trim();
+        if (!busId || state.buses.some(b => b.id === busId)) return;
+        
+        state.buses.push({ id: busId });
+        saveBuses();
+        selectBus(busId, true);
+        
+        if (DOMElements.welcomeModal.classList.contains('visible')) {
+          toggleModal('welcomeModal', false);
+        }
+      }
+
+      function removeBus(busId) {
+        state.buses = state.buses.filter(b => b.id !== busId);
+        saveBuses();
+        
+        if (state.markers.buses[busId]) {
+          state.map.removeLayer(state.markers.buses[busId]);
+          delete state.markers.buses[busId];
+        }
+        
+        if (state.currentBusId === busId || state.currentBusId === 'all') {
+          state.currentBusId = null;
+          if (state.buses.length > 0) {
+            selectBus(state.buses[0].id, true);
+          } else {
+            updateBusSelector('add');
+          }
+        }
+        renderManageBusesList();
+      }
+
+      function selectBus(busId, isUserAction = false) {
+        if (state.currentBusId === busId && !isUserAction) {
+          toggleModal('manageBusesModal', false);
+          return;
+        }
+        
+        state.currentBusId = busId;
+        fetchBusData(isUserAction);
+        toggleModal('manageBusesModal', false);
+        renderManageBusesList();
+      }
+      
+      function renderManageBusesList() {
+        const busList = DOMElements.busList;
+        busList.innerHTML = '';
+        
+        if (state.buses.length > 1) {
+          const allItem = document.createElement('li');
+          allItem.className = 'bus-list-item';
+          if (state.currentBusId === 'all') allItem.classList.add('active');
+          allItem.innerHTML = `<span>🗺️ Show All Buses</span>`;
+          allItem.addEventListener('click', () => selectBus('all'));
+          busList.appendChild(allItem);
+        }
+        
+        if (state.buses.length === 0) {
+          busList.innerHTML = `<p>No buses added yet.</p>`;
+        }
+        
+        state.buses.forEach(bus => {
+          const item = document.createElement('li');
+          item.className = 'bus-list-item';
+          if (bus.id === state.currentBusId) item.classList.add('active');
+          item.innerHTML = `<span>🚌 Bus ${bus.id}</span><button class="delete-bus-btn">-</button>`;
+          
+          item.querySelector('span').addEventListener('click', () => selectBus(bus.id));
+          item.querySelector('button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeBus(bus.id);
+          });
+          
+          busList.appendChild(item);
+        });
+      }
+
+      function updateBusSelector(type, data = {}) {
+        const span = DOMElements.busSelector.querySelector('span:first-child');
+        DOMElements.busSelector.classList.add('visible');
+        
+        if (type === 'loading') {
+          span.innerHTML = `Loading Bus <b>${data.id}</b>...`;
+        } else if (type === 'all_loading') {
+          span.innerHTML = `Loading <b>All Buses</b>...`;
+        } else if (type === 'all_loaded') {
+          span.innerHTML = `Showing <b>${data.count}</b> Buses`;
+        } else if (type === 'loaded') {
+          span.innerHTML = `🚌 Bus <b>${data.id}</b>: ${data.distance ? `<b>${data.distance.toFixed(1)} mi</b> away` : 'Distance N/A'}`;
+        } else if (type === 'failed') {
+          span.innerHTML = `Failed to load Bus <b>${data.id}</b>`;
+        } else if (type === 'add') {
+          span.innerHTML = 'Add a Bus';
+        }
+      }
+
+      function toggleModal(modalId, show) {
+        const modal = document.getElementById(modalId);
+        DOMElements.modalBackdrop.classList.toggle('visible', show);
+        modal.classList.toggle('visible', show);
+      }
+      
+      async function fetchBusData(isUserAction = false) {
+        if (state.isLoading || !state.currentBusId) return;
+        state.isLoading = true;
+        
+        const busesToFetch = state.currentBusId === 'all' ? state.buses.map(b => b.id) : [state.currentBusId];
+        
+        if (isUserAction) {
+          if (state.currentBusId === 'all') {
+            updateBusSelector('all_loading');
+          } else {
+            updateBusSelector('loading', { id: state.currentBusId });
+          }
+        }
+        
+        try {
+          const results = await Promise.all(busesToFetch.map(busId =>
+            fetch("https://mdt.veonow.com/sh_02/wtbparentapp/api/v2/getRiderInfo", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                sessionId: CONFIG.sessionId,
+                bid: busId,
+                chdId: CONFIG.chdId
+              })
+            })
+            .then(res => res.ok ? res.json() : Promise.reject({ busId }))
+            .then(data => ({ busId, data }))
+          ));
+          
+          const fetchedBusIds = new Set();
+          let homeData = null;
+
+          results.forEach(({ busId, data }) => {
+            if (data.resCode === 0 && data.payload) {
+              fetchedBusIds.add(busId);
+              const { busLat, busLon, homLat, homLon } = data.payload;
+              addOrUpdateMarker(`bus-${busId}`, parseFloat(busLat), parseFloat(busLon));
+              
+              if (!homeData && homLat && homLon) {
+                addOrUpdateMarker('home', parseFloat(homLat), parseFloat(homLon), '<b>🏠 Home</b>');
+                homeData = { homLat, homLon };
+              }
+              
+              if (state.currentBusId === busId) {
+                const distance = calculateDistance(busLat, busLon, parseFloat(homLat), parseFloat(homLon));
+                updateBusSelector('loaded', { id: busId, distance });
+              }
+            }
+          });
+
+          for (const busId in state.markers.buses) {
+            if (!fetchedBusIds.has(busId)) {
+              state.markers.buses[busId].remove();
+              delete state.markers.buses[busId];
+            }
+          }
+
+          if (state.currentBusId === 'all') {
+            updateBusSelector('all_loaded', { count: results.length });
+          }
+          
+          if (isUserAction) centerOverview();
+          startCountdown();
+
+        } catch (error) {
+          console.error("Update failed:", error);
+          updateBusSelector('failed', { id: error.busId || state.currentBusId });
+        } finally {
+          state.isLoading = false;
+        }
+      }
+      
+      function centerOnBus() {
+        if (state.currentBusId === 'all' || !state.markers.buses[state.currentBusId]) {
+          centerOverview();
+          return;
+        }
+        state.map.setView(state.markers.buses[state.currentBusId].getLatLng(), 16);
+      }
+
+      function centerOverview() {
+        const markers = Object.values(state.markers.buses);
+        if (state.markers.home) markers.push(state.markers.home);
+        if (markers.length === 0) return;
+        
+        if (markers.length === 1) {
+          state.map.setView(markers[0].getLatLng(), 16);
+        } else {
+          state.map.fitBounds(new L.featureGroup(markers).getBounds().pad(0.2));
+        }
+      }
+
+      function setupEventListeners() {
+        document.getElementById('centerBusBtn').addEventListener('click', centerOnBus);
+        document.getElementById('centerOverviewBtn').addEventListener('click', centerOverview);
+        document.getElementById('refreshBtn').addEventListener('click', () => fetchBusData(false));
+        
+        DOMElements.busSelector.addEventListener('click', () => {
+          renderManageBusesList();
+          toggleModal('manageBusesModal', true);
+        });
+        
+        DOMElements.modalBackdrop.addEventListener('click', () => {
+          toggleModal('welcomeModal', false);
+          toggleModal('manageBusesModal', false);
+        });
+        
+        DOMElements.welcomeAddBusBtn.addEventListener('click', () => {
+          addBus(DOMElements.welcomeBusIdInput.value);
+        });
+        
+        DOMElements.manageAddBusBtn.addEventListener('click', () => {
+          addBus(DOMElements.manageBusIdInput.value);
+          DOMElements.manageBusIdInput.value = '';
+        });
+        
+        DOMElements.layerToggleBtn.addEventListener('click', () => {
+          const isSat = state.currentLayer === 'satellite';
+          state.map.removeLayer(isSat ? state.satelliteLayer : state.streetLayer);
+          state.map.addLayer(isSat ? state.streetLayer : state.satelliteLayer);
+          state.currentLayer = isSat ? 'street' : 'satellite';
+          DOMElements.layerToggleBtn.textContent = isSat ? 'Satellite' : 'Street';
+          localStorage.setItem('mapLayerPreference', state.currentLayer);
+        });
+      }
+
+      function setupAutoRefresh() {
+        setInterval(() => {
+          if (!state.isLoading && document.visibilityState === 'visible') {
+            fetchBusData();
+          }
+        }, CONFIG.refreshInterval);
+      }
+
+      function initializeMap() {
+        state.map = L.map('map', { zoomControl: false }).setView([30.23, -97.81], 12);
+        
+        state.satelliteLayer = L.tileLayer(CONFIG.SATELLITE_TILE_URL, { maxZoom: 20 });
+        state.streetLayer = L.tileLayer(CONFIG.STREET_TILE_URL, { maxZoom: 19 });
+        
+        const savedLayer = localStorage.getItem('mapLayerPreference');
+        if (savedLayer === 'street') {
+          state.streetLayer.addTo(state.map);
+          state.currentLayer = 'street';
+          DOMElements.layerToggleBtn.textContent = 'Satellite';
+        } else {
+          state.satelliteLayer.addTo(state.map);
+          state.currentLayer = 'satellite';
+          DOMElements.layerToggleBtn.textContent = 'Street';
+        }
+        
+        addOrUpdateMarker('school', CONFIG.schoolLat, CONFIG.schoolLon, '<b>🏫 School</b>');
+      }
+      
+      function addOrUpdateMarker(type, lat, lon, popupContent) {
+        const isBus = type.startsWith('bus-');
+        const id = isBus ? type.split('-')[1] : type;
+        const markerGroup = isBus ? state.markers.buses : state.markers;
+        const icon = markerIcons[isBus ? 'bus' : id];
+        
+        if (markerGroup[id]) {
+          markerGroup[id].setLatLng([lat, lon]);
+        } else {
+          markerGroup[id] = L.marker([lat, lon], { icon }).addTo(state.map);
+          if (popupContent) markerGroup[id].bindPopup(popupContent);
+          if (isBus) {
+            markerGroup[id].bindTooltip(`Bus ${id}`, {
+              permanent: true,
+              direction: 'top',
+              offset: [0, -20],
+              className: 'bus-tooltip'
+            }).openTooltip();
+          }
+        }
+      }
+
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
+        const R = 3959;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 0.5 - Math.cos(dLat)/2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * (1 - Math.cos(dLon))/2;
+        return R * 2 * Math.asin(Math.sqrt(a));
+      }
+
+      function startCountdown() {
+        if (state.countdownInterval) clearInterval(state.countdownInterval);
+        const nextUpdate = Date.now() + CONFIG.refreshInterval;
+        const update = () => {
+          document.getElementById('countdownValue').textContent = Math.max(0, Math.ceil((nextUpdate - Date.now()) / 1000));
+        };
+        update();
+        state.countdownInterval = setInterval(update, 1000);
+      }
+      
+      initializeMap();
+      setupEventListeners();
+      loadBuses();
+      setupAutoRefresh();
+    });
+  </script>
+</body>
+</html>
