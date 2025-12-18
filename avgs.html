@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade Calculator</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 20px;
+    transition: transform 0.2s;
+  }
+  .card:hover { transform: translateY(-5px); }
+  .card h2 { margin: 0 0 10px; font-size: 1.2rem; color: #222; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  td { padding: 5px; text-align: center; }
+  input {
+    width: 60px; padding: 5px; border-radius: 6px;
+    border: 1px solid #ccc; text-align: center;
+  }
+  .average {
+    font-weight: bold; padding: 8px; border-radius: 8px; color: #fff; margin-top: 5px;
+  }
+  .high { background-color: #4caf50; }
+  .medium { background-color: #ff9800; }
+  .low { background-color: #f44336; }
+</style>
+</head>
+<body>
+
+<h1>Grade Calculator</h1>
+
+<div class="container" id="classes-container"></div>
+
+<script>
+const classes = [
+  {name: "AP Precalculus", teacher: "Zuniga, Jose", room: "T211A"},
+  {name: "AP Computer Science A", teacher: "Shockey, James", room: "505"},
+  {name: "Scientific Research (LASA Sci 1)", teacher: "Cong, Ruby", room: "G201"},
+  {name: "AP World History", teacher: "Aguayo, Maricruz", room: "301"},
+  {name: "Tennis 10 Boys", teacher: "Vizcaino, Vincent", room: "Gym"},
+  {name: "Advanced Chemistry", teacher: "Guerrero, Rebeca", room: "406"},
+  {name: "Advanced English 2", teacher: "Welin, Amy", room: "134D"},
+  {name: "German 3", teacher: "Parks, Christopher", room: "T112"}
+];
+
+function getAverageColor(avg){
+  if(avg >= 90) return "high";
+  if(avg >= 80) return "medium";
+  return "low";
+}
+
+function saveData(index){
+  const nw1 = document.getElementById(`nw1-${index}`).value;
+  const nw2 = document.getElementById(`nw2-${index}`).value;
+  const s1ex = document.getElementById(`s1ex-${index}`).value;
+  const nw3 = document.getElementById(`nw3-${index}`).value;
+  const nw4 = document.getElementById(`nw4-${index}`).value;
+  const s2ex = document.getElementById(`s2ex-${index}`).value;
+  localStorage.setItem(`grades-${index}`, JSON.stringify({nw1,nw2,s1ex,nw3,nw4,s2ex}));
+}
+
+function loadData(index){
+  const data = JSON.parse(localStorage.getItem(`grades-${index}`));
+  if(data){
+    document.getElementById(`nw1-${index}`).value = data.nw1;
+    document.getElementById(`nw2-${index}`).value = data.nw2;
+    document.getElementById(`s1ex-${index}`).value = data.s1ex;
+    document.getElementById(`nw3-${index}`).value = data.nw3;
+    document.getElementById(`nw4-${index}`).value = data.nw4;
+    document.getElementById(`s2ex-${index}`).value = data.s2ex;
+  }
+}
+
+function createClassCard(cls, index){
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <h2>${cls.name} (${cls.teacher}, Room ${cls.room})</h2>
+    <table>
+      <tr><td>NW1</td><td>NW2</td><td>S1Ex</td><td>S1Av</td></tr>
+      <tr>
+        <td><input type="number" min="0" max="100" id="nw1-${index}"></td>
+        <td><input type="number" min="0" max="100" id="nw2-${index}"></td>
+        <td><input type="number" min="0" max="100" id="s1ex-${index}"></td>
+        <td id="s1av-${index}" class="average">0</td>
+      </tr>
+    </table>
+    <table>
+      <tr><td>NW3</td><td>NW4</td><td>S2Ex</td><td>S2Av</td></tr>
+      <tr>
+        <td><input type="number" min="0" max="100" id="nw3-${index}"></td>
+        <td><input type="number" min="0" max="100" id="nw4-${index}"></td>
+        <td><input type="number" min="0" max="100" id="s2ex-${index}"></td>
+        <td id="s2av-${index}" class="average">0</td>
+      </tr>
+    </table>
+    <div>Year Average: <span id="year-${index}" class="average">0</span></div>
+  `;
+
+  ["nw1","nw2","s1ex","nw3","nw4","s2ex"].forEach(id => {
+    const el = card.querySelector(`#${id}-${index}`);
+    el.addEventListener("input", () => {
+      calculate(index);
+      saveData(index);
+    });
+  });
+
+  return card;
+}
+
+function calculate(index){
+  const nw1 = Number(document.getElementById(`nw1-${index}`).value) || 0;
+  const nw2 = Number(document.getElementById(`nw2-${index}`).value) || 0;
+  const s1ex = Number(document.getElementById(`s1ex-${index}`).value) || 0;
+  const nw3 = Number(document.getElementById(`nw3-${index}`).value) || 0;
+  const nw4 = Number(document.getElementById(`nw4-${index}`).value) || 0;
+  const s2ex = Number(document.getElementById(`s2ex-${index}`).value) || 0;
+
+  const s1av = (nw1*0.4 + nw2*0.4 + s1ex*0.2).toFixed(1);
+  const s2av = (nw3*0.4 + nw4*0.4 + s2ex*0.2).toFixed(1);
+  const yearAv = ((s1ex + s2ex)/2).toFixed(1);
+
+  const s1avEl = document.getElementById(`s1av-${index}`);
+  const s2avEl = document.getElementById(`s2av-${index}`);
+  const yearEl = document.getElementById(`year-${index}`);
+
+  s1avEl.textContent = s1av;
+  s2avEl.textContent = s2av;
+  yearEl.textContent = yearAv;
+
+  s1avEl.className = `average ${getAverageColor(s1av)}`;
+  s2avEl.className = `average ${getAverageColor(s2av)}`;
+  yearEl.className = `average ${getAverageColor(yearAv)}`;
+}
+
+// Render cards and load saved data
+const container = document.getElementById("classes-container");
+classes.forEach((cls, i) => {
+  container.appendChild(createClassCard(cls,i));
+  loadData(i);
+  calculate(i);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LASA GPA Planning Tool (Final Version)</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
+h2, h3, p { color: #333; }
+textarea { width: 100%; height: 250px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; padding: 10px; font-family: monospace; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; box-shadow: 0 2px 3px rgba(0,0,0,0.1); }
+th, td { border: 1px solid #ccc; padding: 12px; text-align: center; }
+th { background: #eee; font-weight: bold; }
+input[type="number"] { width: 80px; text-align: center; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+button:hover { background-color: #0056b3; }
+#results p { font-size: 1.2em; margin: 8px 0; }
+#results span { font-weight: bold; color: #0056b3; font-size: 1.25em; }
+.weighted { background-color: #e8f4ff; }
+.unweighted { background-color: #fefefe; }
+.future-course input { border: 1px dashed #999; }
+.pass-fail { text-decoration: line-through; color: #999; background-color: #f0f0f0; }
+.pass-fail input { text-decoration: none; }
+</style>
+</head>
+<body>
+<h2>LASA GPA Planning Tool</h2>
+<p>Paste your full, detailed transcript from the portal below. You can then manually override the "Weighted?" status for any course.</p>
+<textarea id="transcriptInput" placeholder="Paste your entire detailed credit summary here..."></textarea>
+<button onclick="parseTranscript()">Calculate & Plan GPA</button>
+<h3>Courses</h3>
+<table id="coursesTable">
+<thead>
+<tr>
+<th>Course</th>
+<th>Grade (%)</th>
+<th>Credit</th>
+<th>Weighted?</th>
+<th>P/F?</th>
+<th>Weighted GPA Value</th>
+<th>Unweighted GPA Value</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<div id="results">
+<h3>Results</h3>
+<p>Weighted GPA: <span id="weightedGPA">0.00000</span></p>
+<p>Unweighted GPA: <span id="unweightedGPA">0.00000</span></p>
+</div>
+
+<script>
+const weightedCourses = new Set([
+    "ADV ENG", "ADV W GEO", "ADV ALGEBRA", "ADV GEOMETRY", "ADV BIOLOGY", "ADV CHEMISTRY", "AP ", "ENG SCIENCE ADV", "DIGDES & MED PR", "GREAT IDEAS", "PLANET EARTH", "EZINE", "SCITECH", "COMPUTER SCI 1", "FUND COMP SCI", "ANATOMY AND PHYSIOLOGY", "ASTRONOMY", "BIOTECHNOLOGY", "FORENSIC SCIENCE", "ADV ASL", "ASL 3", "ASL 4", "ASL 5", "ADV CHINESE", "CHINESE 3", "CHINESE 4", "CHINESE 5", "CHINESE 6", "CHINESE 7", "CHINESE 8", "ADV FRENCH", "FRENCH 3", "FRENCH 4", "FRENCH 5", "FRENCH 6", "ADV GERMAN", "GERMAN 3", "GERMAN 4", "GERMAN 5", "GERMAN 6", "ADV JAPANESE", "JAPANESE 3", "JAPANESE 4", "JAPANESE 5", "ADV LATIN", "LATIN 3", "LATIN 4", "LATIN 5", "LATIN 6", "ADV SPANISH", "SPANISH 3", "SPANISH 4", "SPANISH 5", "SPANISH 6", "SPANISH 7", "CINE HISPANO", "ANIMATION", "AUDIO VIDEO PROD", "GRAPHIC DESIGN", "NEWSPAPER", "YEARBOOK", "ROBOTICS 1", "WEB & MOBILE", "DRAWING 2", "DRAWING 3", "CERAMICS 2", "CERAMICS 3", "PAINTING 2", "PAINTING 3", "PRINTMAKING 2", "PRINTMAKING 3", "SCULPTURE 2", "SCULPTURE 3", "CHOIR 3", "CHOIR 4", "BAND 3", "BAND 4", "DANCE 3", "DANCE 4", "JAZZ ENSEMBLE 3", "JAZZ ENSEMBLE 4", "ORCHESTRA 3", "ORCHESTRA 4", "THEATRE 3", "THEATRE 4"
+]);
+
+const allKnownCourses = new Set([
+    ...weightedCourses, "GERMAN 1", "GERMAN 2", "SPANISH 1", "SPANISH 2", "FRENCH 1", "FRENCH 2", "ASL 1", "ASL 2", "CHINESE 1", "CHINESE 2", "JAPANESE 1", "JAPANESE 2", "LATIN 1", "LATIN 2", "TENNIS", "HEALTH ED", "ADVISORY", "ORCHESTRA 1", "ORCHESTRA 2", "CHOIR 1", "CHOIR 2", "BAND 1", "BAND 2", "ART 1", "THEATRE 1", "SP TP SCI1 LASA"
+]);
+
+function gpa4(grade){ return Math.max(0, Math.min(4, 0.1 * grade - 6)); }
+function gpa5(grade){ return Math.max(0, Math.min(5, 0.1 * grade - 5)); }
+
+let courses = [];
+
+function normalizeCourseName(name) {
+    let normalized = name.toUpperCase();
+    normalized = normalized.replace(/\bVIII\b/g, '8').replace(/\bVII\b/g, '7').replace(/\bVI\b/g, '6').replace(/\bV\b/g, '5').replace(/\bIV\b/g, '4').replace(/\bIII\b/g, '3').replace(/\bII\b/g, '2').replace(/\bI\b/g, '1');
+    return normalized;
+}
+
+function isWeighted(courseString) {
+    const normalizedCourseString = normalizeCourseName(courseString);
+    for (const weightedName of weightedCourses) {
+        if (normalizedCourseString.includes(weightedName)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function parseTranscript() {
+    const input = document.getElementById('transcriptInput').value;
+    courses = [];
+    const lines = input.split(/\r?\n/);
+    const addedFutureCourses = new Set();
+
+    for (let line of lines) {
+        const trimmedLine = line.trim();
+        const normalizedLine = normalizeCourseName(trimmedLine);
+        let isCourseLine = false;
+        for (const keyword of allKnownCourses) {
+            if (normalizedLine.includes(keyword)) {
+                isCourseLine = true;
+                break;
+            }
+        }
+        if (!isCourseLine) continue;
+
+        const parts = trimmedLine.split(/\s+/);
+        const credit = parseFloat(parts[parts.length - 1]);
+        const grade = parseFloat(parts[parts.length - 2]);
+
+        if (!isNaN(grade) && !isNaN(credit) && grade >= 40 && credit > 0) {
+            const courseName = parts.slice(0, parts.length - 2).join(' ');
+            courses.push({
+                course: courseName, grade: grade, credit: credit,
+                weighted: isWeighted(courseName), passFail: false, isFuture: false
+            });
+        } else {
+            const courseName = trimmedLine;
+            if (!addedFutureCourses.has(courseName)) {
+                courses.push({
+                    course: courseName, grade: '', credit: '',
+                    weighted: isWeighted(courseName), passFail: false, isFuture: true
+                });
+                addedFutureCourses.add(courseName);
+            }
+        }
+    }
+    renderTable();
+    calculateGPA();
+}
+
+
+function renderTable() {
+    const tbody = document.querySelector('#coursesTable tbody');
+    tbody.innerHTML = '';
+    courses.forEach((c, index) => {
+        const row = document.createElement('tr');
+        row.id = `row-${index}`;
+        row.className = c.weighted ? 'weighted' : 'unweighted';
+        if (c.isFuture) row.classList.add('future-course');
+
+        const td = (text) => { const cell = document.createElement('td'); cell.textContent = text; return cell; };
+        row.appendChild(td(c.course));
+
+        const tdGrade = document.createElement('td');
+        const gradeInput = document.createElement('input');
+        gradeInput.type = 'number'; gradeInput.value = c.grade; gradeInput.placeholder = 'e.g., 95';
+        gradeInput.onchange = (e) => { c.grade = parseFloat(e.target.value) || ''; calculateGPA(); };
+        tdGrade.appendChild(gradeInput);
+        row.appendChild(tdGrade);
+        
+        const tdCredit = document.createElement('td');
+        const creditInput = document.createElement('input');
+        creditInput.type = 'number'; creditInput.step = '0.5'; creditInput.value = c.credit; creditInput.placeholder = 'e.g., 0.5';
+        creditInput.onchange = (e) => { c.credit = parseFloat(e.target.value) || ''; calculateGPA(); };
+        tdCredit.appendChild(creditInput);
+        row.appendChild(tdCredit);
+        
+        // --- NEW: Weighted Status Checkbox ---
+        const tdWeighted = document.createElement('td');
+        const weightedInput = document.createElement('input');
+        weightedInput.type = 'checkbox';
+        weightedInput.checked = c.weighted;
+        weightedInput.onchange = (e) => {
+            c.weighted = e.target.checked;
+            document.getElementById(`row-${index}`).className = c.weighted ? 'weighted' : 'unweighted';
+            if (c.isFuture) document.getElementById(`row-${index}`).classList.add('future-course');
+            calculateGPA();
+        };
+        tdWeighted.appendChild(weightedInput);
+        row.appendChild(tdWeighted);
+
+        const tdPassFail = document.createElement('td');
+        const pfInput = document.createElement('input');
+        pfInput.type = 'checkbox'; pfInput.checked = c.passFail;
+        pfInput.onchange = (e) => { 
+            c.passFail = e.target.checked;
+            document.getElementById(`row-${index}`).classList.toggle('pass-fail', c.passFail);
+            calculateGPA(); 
+        };
+        tdPassFail.appendChild(pfInput);
+        row.appendChild(tdPassFail);
+
+        const tdWeightedVal = document.createElement('td'); tdWeightedVal.id = `w-${index}`; row.appendChild(tdWeightedVal);
+        const tdUnweightedVal = document.createElement('td'); tdUnweightedVal.id = `u-${index}`; row.appendChild(tdUnweightedVal);
+        tbody.appendChild(row);
+    });
+    updateIndividualGPAs();
+}
+
+function updateIndividualGPAs() {
+    courses.forEach((c, index) => {
+        const wCell = document.getElementById(`w-${index}`);
+        const uCell = document.getElementById(`u-${index}`);
+        if (c.passFail || !c.grade) {
+            wCell.textContent = 'N/A'; uCell.textContent = 'N/A';
+        } else {
+            wCell.textContent = (c.weighted ? gpa5(c.grade) : gpa4(c.grade)).toFixed(2);
+            uCell.textContent = gpa4(c.grade).toFixed(2);
+        }
+    });
+}
+
+function calculateGPA() {
+    let weightedSum = 0;
+    let unweightedSum = 0;
+    let totalMultiplier = 0;
+    courses.forEach(c => {
+        if (c.passFail || !c.grade || !c.credit) return;
+        const multiplier = c.credit === 1.0 ? 2 : 1;
+        const weightedGpaPoints = c.weighted ? gpa5(c.grade) : gpa4(c.grade);
+        const unweightedGpaPoints = gpa4(c.grade);
+        weightedSum += weightedGpaPoints * multiplier;
+        unweightedSum += unweightedGpaPoints * multiplier;
+        totalMultiplier += multiplier;
+    });
+    const finalWeighted = totalMultiplier > 0 ? (weightedSum / totalMultiplier) : 0;
+    const finalUnweighted = totalMultiplier > 0 ? (unweightedSum / totalMultiplier) : 0;
+    document.getElementById('weightedGPA').textContent = finalWeighted.toFixed(5);
+    document.getElementById('unweightedGPA').textContent = finalUnweighted.toFixed(5);
+    updateIndividualGPAs();
+}
+</script>
+</body>
+</html>
