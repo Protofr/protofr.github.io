@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To What Extent Can Reality Be Verified?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --obsidian: #08080e;
+    --deep-navy: #0d0f1a;
+    --ink: #13152a;
+    --gold: #c9a84c;
+    --gold-light: #e2c97e;
+    --gold-dim: #7a6230;
+    --parchment: #f4f0e4;
+    --parchment-dim: #cfc9b4;
+    --smoke: #8b899a;
+    --mist: #3d3b50;
+    --accent-teal: #4ab5a8;
+    --accent-coral: #c97060;
+    --white: #ffffff;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --body: 'Libre Baskerville', Georgia, serif;
+    --mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--obsidian);
+    color: var(--parchment);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(8,8,14,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 58px;
+  }
+  .nav-brand {
+    font-family: var(--serif);
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 300;
+  }
+  .nav-links {
+    display: flex;
+    gap: 0;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    text-decoration: none;
+    padding: 0.5rem 0.9rem;
+    transition: color 0.25s;
+    border-left: 1px solid rgba(201,168,76,0.08);
+  }
+  .nav-links a:first-child { border-left: none; }
+  .nav-links a:hover { color: var(--gold-light); }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #rain-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.22;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 55%, rgba(13,15,26,0.0) 0%, rgba(8,8,14,0.92) 100%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 860px;
+    padding: 0 2rem;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 1s 0.3s forwards;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--parchment);
+    margin-bottom: 1.8rem;
+    opacity: 0;
+    animation: fadeUp 1s 0.55s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--smoke);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 1s 0.8s forwards;
+  }
+  .hero-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--gold-dim);
+    opacity: 0;
+    animation: fadeUp 1s 1s forwards;
+  }
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 2;
+    opacity: 0;
+    animation: fadeIn 1s 1.5s forwards;
+  }
+  .hero-scroll span {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--smoke);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--gold-dim), transparent);
+    animation: scrollPulse 2s 2s infinite;
+  }
+  .cave-decor {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 180px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 180'%3E%3Cpath fill='%2308080e' d='M0,90 C240,20 480,160 720,90 C960,20 1200,140 1440,80 L1440,180 L0,180 Z'/%3E%3C/svg%3E") no-repeat bottom;
+    background-size: cover;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+  }
+  section.full-width {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .section-band {
+    padding: 6rem 2rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+  .section-band-inner {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .band-alt { background: var(--deep-navy); }
+  .band-dark { background: var(--ink); }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.2);
+    max-width: 80px;
+  }
+
+  h2.section-heading {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--parchment);
+    margin-bottom: 1.5rem;
+  }
+  h2.section-heading em { font-style: italic; color: var(--gold-light); }
+
+  h3.source-heading {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--parchment);
+    margin-bottom: 0.75rem;
+    margin-top: 2.5rem;
+  }
+  h3.source-heading:first-of-type { margin-top: 0; }
+
+  p { margin-bottom: 1.2rem; color: var(--parchment-dim); }
+  p:last-child { margin-bottom: 0; }
+
+  .intro-large {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--parchment);
+    margin-bottom: 1.8rem;
+  }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--gold);
+    padding: 1.2rem 1.8rem;
+    margin: 2.5rem 0;
+    background: rgba(201,168,76,0.04);
+    border-radius: 0 6px 6px 0;
+  }
+  .pull-quote blockquote {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--gold-light);
+    margin-bottom: 0.6rem;
+  }
+  .pull-quote cite {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--smoke);
+    text-transform: uppercase;
+    font-style: normal;
+  }
+
+  /* ── SOURCE CARD ── */
+  .source-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .source-card:hover {
+    border-color: rgba(201,168,76,0.3);
+    background: rgba(255,255,255,0.04);
+  }
+  .source-tag {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+  .tag-skeptic { background: rgba(201,96,96,0.15); color: #d4857a; border: 1px solid rgba(201,96,96,0.25); }
+  .tag-reason  { background: rgba(74,181,168,0.12); color: #6cccc0; border: 1px solid rgba(74,181,168,0.2); }
+  .tag-problem { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+  .tag-solution{ background: rgba(120,160,220,0.12); color: #90b8e8; border: 1px solid rgba(120,160,220,0.2); }
+
+  /* ── PHILOSOPHER TABS ── */
+  .tab-system { margin: 2.5rem 0; }
+  .tab-buttons {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    margin-bottom: 0;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--smoke);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1.2rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.25s, border-color 0.25s;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--parchment); }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab-panel {
+    display: none;
+    padding: 2rem 0 0;
+    animation: fadeIn 0.35s ease;
+  }
+  .tab-panel.active { display: block; }
+
+  /* ── THESIS BOX ── */
+  .thesis-box {
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 2.5rem;
+    margin: 3rem 0;
+    position: relative;
+    background: rgba(201,168,76,0.04);
+  }
+  .thesis-box::before {
+    content: '"';
+    font-family: var(--serif);
+    font-size: 8rem;
+    color: rgba(201,168,76,0.08);
+    position: absolute;
+    top: -1.5rem;
+    left: 1.5rem;
+    line-height: 1;
+  }
+  .thesis-text {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--gold-light);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── CONTRAST SPLIT ── */
+  .contrast-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5px;
+    margin: 2.5rem 0;
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .split-panel {
+    padding: 2rem;
+    background: rgba(255,255,255,0.02);
+  }
+  .split-panel:first-child { border-right: 1px solid rgba(201,168,76,0.1); }
+  .split-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .label-matrix { color: #c97060; }
+  .label-plato  { color: #4ab5a8; }
+  .split-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--parchment);
+    margin-bottom: 0.75rem;
+  }
+  .split-panel p { font-size: 0.9rem; }
+
+  /* ── TIMELINE / FLOW ── */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2.5rem 0;
+    position: relative;
+  }
+  .flow-diagram::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 30px;
+    bottom: 30px;
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.5), rgba(201,168,76,0.1));
+  }
+  .flow-step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding: 1.2rem 0;
+    position: relative;
+  }
+  .flow-dot {
+    width: 41px;
+    height: 41px;
+    min-width: 41px;
+    border-radius: 50%;
+    background: var(--obsidian);
+    border: 1px solid var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    position: relative;
+    z-index: 1;
+  }
+  .flow-body { padding-top: 0.5rem; }
+  .flow-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--parchment);
+    margin-bottom: 0.3rem;
+  }
+  .flow-text { font-size: 0.9rem; }
+
+  /* ── SYNTHESIS ── */
+  .synth-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 2.5rem 0;
+  }
+  .synth-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .synth-card-icon {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .synth-card-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .synth-card p { font-size: 0.85rem; margin: 0; }
+
+  .card-skeptic { background: rgba(201,96,96,0.08); border-color: rgba(201,96,96,0.2); }
+  .card-reason  { background: rgba(74,181,168,0.07); border-color: rgba(74,181,168,0.2); }
+  .card-problem { background: rgba(201,168,76,0.07); border-color: rgba(201,168,76,0.2); }
+  .card-solution{ background: rgba(120,160,220,0.07); border-color: rgba(120,160,220,0.2); }
+  .card-neutral { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+
+  /* ── BIBLIOGRAPHY ── */
+  .bib-entry {
+    padding: 1.8rem 0;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .bib-entry:last-child { border-bottom: none; }
+  .bib-number {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--gold-dim);
+    padding-top: 0.25rem;
+    min-width: 2rem;
+  }
+  .bib-citation {
+    font-size: 0.9rem;
+    color: var(--parchment-dim);
+    line-height: 1.7;
+  }
+  .bib-citation strong {
+    display: block;
+    color: var(--parchment);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+  }
+  .bib-annotation {
+    font-size: 0.88rem;
+    color: var(--smoke);
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid rgba(201,168,76,0.1);
+  }
+  footer p {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--mist);
+    text-transform: uppercase;
+  }
+
+  /* ── REVEAL ANIMATION ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ── KEYFRAMES ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity: 1; }
+    50%     { opacity: 0.3; }
+  }
+
+  /* ── DIVIDER ── */
+  .gold-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold-dim);
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .contrast-split { grid-template-columns: 1fr; }
+    .split-panel:first-child { border-right: none; border-bottom: 1px solid rgba(201,168,76,0.1); }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">Reality Verified &mdash; Great Ideas 2026</span>
+  <ul class="nav-links">
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#illusion">Illusion</a></li>
+    <li><a href="#certainty">Certainty</a></li>
+    <li><a href="#knowing">Knowing</a></li>
+    <li><a href="#synthesis">Synthesis</a></li>
+    <li><a href="#bibliography">Sources</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="full-width">
+  <canvas id="rain-canvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Great Ideas &bull; Philosophy &bull; Spring 2026</p>
+    <h1 class="hero-title">To what extent can <em>reality</em> be verified?</h1>
+    <p class="hero-subtitle">From Plato's cave to the digital simulation — an inquiry into the nature of knowledge, certainty, and the limits of human perception.</p>
+    <p class="hero-meta">Vivek Jallepalli &amp; Avi Sharma &nbsp;&bull;&nbsp; Ms. Rejino</p>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll to explore</span>
+  </div>
+  <div class="cave-decor"></div>
+</section>
+
+<!-- INTRO -->
+<div class="section-band" id="intro">
+  <div class="section-band-inner">
+    <div class="section-label reveal">01 &mdash; Introduction</div>
+    <h2 class="section-heading reveal reveal-delay-1">Why does this question matter <em>now?</em></h2>
+
+    <p class="intro-large reveal reveal-delay-2">
+      Every day, billions of people navigate a world increasingly mediated by screens, algorithms, and artificial intelligence. We scroll through curated feeds that reflect our preferences back to us, interact with AI voices indistinguishable from humans, and blur the line between lived experience and its digital simulacrum.
+    </p>
+
+    <p class="reveal">The ancient question — <em>can we trust what we perceive to be real?</em> — has never felt more urgent. It is no longer merely a thought experiment posed by ancient Greeks in marble amphitheaters. It is a question that shapes policy, identity, and democratic life. When "deepfakes" make video evidence unreliable, when social media constructs parallel realities, and when AI generates text and images indistinguishable from human output, the philosophical problem of verifying reality becomes inescapably practical.</p>
+
+    <p class="reveal">This project examines five foundational sources — spanning cinema, ancient philosophy, analytic epistemology, and contemporary theory — to answer the central question: <strong style="color:var(--parchment)">To what extent can reality be verified?</strong></p>
+
+    <div class="thesis-box reveal">
+      <p class="thesis-text">While absolute certainty about reality may be impossible — as both radical skepticism and analytic philosophy demonstrate — human beings can still form meaningful, justified, and functionally reliable beliefs about the world through careful reasoning, reliable cognitive processes, and the humble acceptance of uncertainty.</p>
+    </div>
+
+    <p class="reveal">Our five sources form a conversation across millennia: <em>The Matrix</em> (1999) and Plato's <em>Allegory of the Cave</em> establish the problem of deceptive perception. Edmund Gettier's landmark 1963 paper exposes the fragility of traditional knowledge. And reliabilist epistemology (Comesaña &amp; Graham, 2021) together with fallibilism (Hetherington, 2005) offer a measured, human-scale resolution. Together, they map the full arc of this question — from radical doubt to reasoned hope.</p>
+  </div>
+</div>
+
+<!-- SECTION 1: ILLUSION -->
+<div class="section-band band-alt" id="illusion">
+  <div class="section-band-inner">
+    <div class="section-label reveal">02 &mdash; Source Section I</div>
+    <h2 class="section-heading reveal reveal-delay-1">The <em>Illusion</em> of Reality</h2>
+    <p class="intro-large reveal reveal-delay-2">What if everything you see, hear, and feel is a fabrication? Two of history's most powerful thought experiments take this possibility seriously — and arrive at very different conclusions.</p>
+
+    <!-- TAB SYSTEM -->
+    <div class="tab-system reveal">
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab(this, 'tab-matrix')">The Matrix (1999)</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-plato')">Plato's Cave (375 BCE)</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-contrast')">Side-by-Side Contrast</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-matrix">
+        <span class="source-tag tag-skeptic">Radical Skepticism</span>
+        <h3 class="source-heading">The Matrix — Wachowski Sisters (1999)</h3>
+        <p>The Wachowskis' landmark film presents a scenario that epistemologists call a <em>brain-in-a-vat</em> hypothesis in cinematic form. Humanity has been enslaved by machines; every person floats in a pod of nutrient fluid while their brain receives a continuous stream of electrical signals that produce an entirely convincing simulation of the year 1999. The world Neo touches, sees, and tastes does not exist.</p>
+        <p>The film's central horror is not the machines — it is the discovery that human senses cannot be trusted as windows onto reality. Morpheus delivers the epistemological gut-punch: <em>"What is real? How do you define real? If you're talking about what you can feel, what you can smell, what you can taste and see, then real is simply electrical signals interpreted by your brain."</em> This is not science fiction speculation; it is a restating of the classical skeptical problem that Descartes raised in his <em>Meditations</em> (1641), asking whether an evil demon could be deceiving him about all of reality.</p>
+
+        <div class="pull-quote">
+          <blockquote>"What is real? How do you define real? If you're talking about what you can feel, what you can smell, what you can taste and see, then real is simply electrical signals interpreted by your brain."</blockquote>
+          <cite>Morpheus — The Matrix (1999)</cite>
+        </div>
+
+        <p>The Matrix advances skepticism to its most radical conclusion: reality could be <strong style="color:var(--parchment)">completely and systematically deceptive</strong>. There is no incomplete glimpse of truth — there is no truth accessible at all. Every sensory signal, every memory, every intuition has been crafted by an external intelligence with complete control over one's epistemic inputs. This possibility is philosophically devastating because it offers no internal escape route: you cannot think your way out of a simulation using only the tools the simulation provided you.</p>
+        <p>The red pill/blue pill moment forces a choice between comfortable falsehood and destabilizing truth — and crucially, it requires an external agent (Morpheus, the rebellion) to break the illusion. Left alone, the prisoners of the Matrix would never know they were imprisoned.</p>
+      </div>
+
+      <div class="tab-panel" id="tab-plato">
+        <span class="source-tag tag-reason">Rationalist Ascent</span>
+        <h3 class="source-heading">Plato's Allegory of the Cave — Republic, Book VII (c. 375 BCE)</h3>
+        <p>Plato, writing through the voice of Socrates, describes a group of prisoners chained since birth in an underground cave. Behind them burns a fire; between them and the fire, puppeteers carry objects whose shadows are projected onto the cave wall in front of the prisoners. Having seen nothing else their entire lives, the prisoners believe these flickering silhouettes to be reality itself.</p>
+        <p>When one prisoner is released and dragged out into sunlight, the experience is initially blinding and painful. Yet as his eyes adjust, he sees the real objects, real trees, real sky — and finally, the sun itself, which Plato identifies with the Form of the Good, the ultimate source of all truth and being. The prisoner has ascended from shadow to substance through the hard work of philosophical reasoning.</p>
+
+        <div class="pull-quote">
+          <blockquote>"The prison-house is the world of sight, the light of the fire is the sun, and you will not misapprehend me if you interpret the journey upwards to be the ascent of the soul into the intellectual world."</blockquote>
+          <cite>Plato — Republic, Book VII (c. 375 BCE)</cite>
+        </div>
+
+        <p>Plato's allegory diverges from The Matrix in one crucial and optimistic way: the prisoners do not live in a world of <em>designed deception</em> but in a world of <em>incomplete perception</em>. The shadows are not lies inserted by a malevolent machine — they are the dim, indirect traces of something genuinely real. The Form of the chair exists; the prisoner simply sees its shadow. Truth is not absent; it is veiled, waiting to be uncovered through disciplined inquiry.</p>
+        <p>This distinction matters enormously. For Plato, philosophy — the love of wisdom — is the red pill. Human reason, properly trained, is capable of ascending from the cave's darkness to the full light of Forms. Reality can be partially verified through the exercise of rational thought. The process is difficult, even painful, but it is available to any mind willing to undertake the climb.</p>
+      </div>
+
+      <div class="tab-panel" id="tab-contrast">
+        <div class="contrast-split">
+          <div class="split-panel">
+            <p class="split-label label-matrix">The Matrix</p>
+            <p class="split-title">Total Artificial Deception</p>
+            <p>Reality is a complete fabrication. The senses relay false data engineered by an outside intelligence. There is no partial truth — only constructed illusion. Escape requires external intervention.</p>
+          </div>
+          <div class="split-panel">
+            <p class="split-label label-plato">Plato's Cave</p>
+            <p class="split-title">Incomplete Natural Perception</p>
+            <p>Reality exists and is genuine, but humans perceive only its shadows. Truth is accessible through reason and philosophical growth. The climb out of the cave is internal, not dependent on external rescuers.</p>
+          </div>
+        </div>
+
+        <p>Both works share the conviction that <em>ordinary human perception is insufficient</em> to grasp reality as it truly is. But they diverge radically on the question of agency and hope. The Matrix implies that the trap is invisible and total — you cannot escape what you cannot see. Plato insists that the human mind, driven by curiosity and disciplined by logic, can detect its own limitations and transcend them.</p>
+
+        <p>Together, they frame the philosophical problem at the heart of this project: if our senses are imperfect instruments — or potentially compromised ones — what hope do we have of verifying reality at all? The answer begins with understanding what we mean by "knowledge" in the first place.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: CERTAINTY -->
+<div class="section-band band-dark" id="certainty">
+  <div class="section-band-inner">
+    <div class="section-label reveal">03 &mdash; Source Section II</div>
+    <h2 class="section-heading reveal reveal-delay-1">The <em>Problem</em> with Certainty</h2>
+    <p class="intro-large reveal reveal-delay-2">Even if we grant that our senses are basically trustworthy — even if we accept Plato's optimism that reason can guide us to truth — a devastating philosophical obstacle remains. What, exactly, does it mean to <em>know</em> something?</p>
+
+    <div class="source-card reveal">
+      <span class="source-tag tag-problem">Analytic Epistemology</span>
+      <h3 class="source-heading">Edmund Gettier — "Is Justified True Belief Knowledge?" (1963)</h3>
+
+      <p>For over two millennia, philosophers accepted the definition of knowledge first articulated by Plato in the <em>Meno</em>: knowledge is <strong style="color:var(--parchment)">justified true belief</strong>. That is, you know a proposition if (1) it is true, (2) you believe it, and (3) you have good reasons — justification — for believing it. This tripartite definition seemed airtight. It was taught in classrooms from Athens to Oxford as the settled foundation of epistemology.</p>
+
+      <p>In 1963, Edmund Gettier published a three-page paper in the journal <em>Analysis</em> that demolished this consensus. His method was elegant and merciless: he constructed thought experiments in which all three conditions are met — the belief is true, the believer is justified, and the belief is held — yet no one would ordinarily say the person <em>knows</em> anything at all.</p>
+
+      <div class="pull-quote">
+        <blockquote>"I shall argue that [justified true belief] is in fact false in that the conditions stated therein do not constitute a sufficient condition for the truth of the proposition that S knows that P."</blockquote>
+        <cite>Edmund Gettier — "Is Justified True Belief Knowledge?" (1963)</cite>
+      </div>
+
+      <p>Gettier's most famous case runs roughly as follows: Smith is interviewing for a job. He has strong evidence that Jones will get the position, and he notices Jones has ten coins in his pocket. He forms the justified belief: <em>"The man who will get the job has ten coins in his pocket."</em> As it happens, Smith gets the job — and, unbeknownst to him, he also has ten coins in his own pocket. His belief is true. His belief was justified. He believed it. But he did not <em>know</em> it — because his reasoning was accidentally correct, salvaged by coincidence.</p>
+
+      <p>This is the "Gettier problem": knowledge cannot simply be justified true belief, because luck and coincidence can produce justified true beliefs without genuine epistemic achievement. The gap between a lucky guess and real knowledge is crucial — and it turns out to be very hard to define.</p>
+
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="flow-dot">1</div>
+          <div class="flow-body">
+            <p class="flow-title">True Belief</p>
+            <p class="flow-text">Smith believes the man who gets the job has ten coins in his pocket. This turns out to be true — but not for the reason he thought.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">2</div>
+          <div class="flow-body">
+            <p class="flow-title">Justified Belief</p>
+            <p class="flow-text">Smith's belief is based on strong evidence — he saw Jones's coins, and had good reason to think Jones would be hired.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">?</div>
+          <div class="flow-body">
+            <p class="flow-title">But is it Knowledge?</p>
+            <p class="flow-text">No. The belief is true only by coincidence. Smith couldn't know he himself would get the job or that he also had ten coins. The truth was accidental — making this a lucky guess dressed up as knowledge.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>The implications for our central question are profound. Even in the best case — even when we are reasoning carefully, have good evidence, and arrive at a true conclusion — something can go subtly wrong that strips the result of its status as genuine knowledge. If justified true belief is not enough, what is? And if we cannot reliably identify when we truly <em>know</em> something, how can we be confident that our picture of reality is verified and not merely lucky?</p>
+
+      <p>Gettier did not answer his own question — the paper ends with the demolition complete, the rebuilding left to others. But the wound he opened forced epistemologists to grapple with a more rigorous, and more humble, conception of what human knowledge can achieve.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: KNOWING -->
+<div class="section-band band-alt" id="knowing">
+  <div class="section-band-inner">
+    <div class="section-label reveal">04 &mdash; Source Section III</div>
+    <h2 class="section-heading reveal reveal-delay-1">Knowing Without <em>Certainty</em></h2>
+    <p class="intro-large reveal reveal-delay-2">The Matrix counsels despair. Gettier erodes confidence. But two contemporary philosophical frameworks argue that the impossibility of absolute certainty does not condemn us to ignorance — it simply demands that we be more honest about the nature of human knowledge.</p>
+
+    <div class="source-card reveal">
+      <span class="source-tag tag-solution">Reliabilist Epistemology</span>
+      <h3 class="source-heading">Reliabilism — Comesaña &amp; Graham (2021)</h3>
+
+      <p>Reliabilism, developed most famously by Alvin Goldman and surveyed in Comesaña &amp; Graham's 2021 Stanford Encyclopedia entry, proposes an elegant solution to both the Gettier problem and radical skepticism: a belief counts as knowledge not because it has been logically proven certain, but because it was produced by a <strong style="color:var(--parchment)">reliable cognitive process</strong>.</p>
+
+      <p>What counts as reliable? Processes that, across a wide range of circumstances, tend to produce true beliefs — perception in normal lighting conditions, careful logical inference, scientific experimentation, the testimony of credible witnesses. These are not infallible. Your eyes can deceive you in a dark room or in a desert mirage. But your eyes are overwhelmingly reliable as instruments for navigating reality in typical conditions. And that reliability is enough, reliabilists argue, to underwrite genuine knowledge.</p>
+
+      <div class="pull-quote">
+        <blockquote>"A belief is justified if and only if it is produced by a process that is reliable — one that tends to produce true beliefs in a wide variety of circumstances."</blockquote>
+        <cite>Comesaña &amp; Graham — "Reliabilism" (Stanford Encyclopedia of Philosophy, 2021)</cite>
+      </div>
+
+      <p>This framework sidesteps the Gettier problem by adding a causal condition: it is not enough for a belief to happen to be true and happen to be justified. The truth of the belief must be <em>connected to</em> the reliability of the process that produced it. In Gettier's coin case, Smith's belief was not produced by a reliable process — it was produced by faulty reasoning that accidentally hit upon a true conclusion. Reliabilism correctly identifies this as non-knowledge.</p>
+
+      <p>More importantly, reliabilism resists the pull of radical skepticism. The Matrix scenario — a brain in a vat receiving false signals — would indeed defeat reliabilism, because perception under those conditions is not reliable. But we have no good reason to think we <em>are</em> in that scenario, and strong evolutionary and experiential reasons to think our perceptual systems are broadly reliable in the actual world. The appropriate response to philosophical skepticism is not paralysis — it is to point to the track record.</p>
+    </div>
+
+    <div class="source-card reveal reveal-delay-1">
+      <span class="source-tag tag-solution">Fallibilism</span>
+      <h3 class="source-heading">Fallibilism — Stephen Hetherington (2005)</h3>
+
+      <p>Fallibilism, as articulated by Stephen Hetherington in his 2005 essay "Fallibilism," is a philosophical position that embraces a profound and liberating truth: the fact that you <em>might be wrong</em> does not mean you do not <em>know</em>. It reframes uncertainty not as a failure of the knowledge enterprise but as a structural feature of it.</p>
+
+      <p>The fallibilist holds that knowledge does not require certainty. You can know that the sun will rise tomorrow even though, strictly speaking, you cannot rule out every conceivable scenario in which it does not. You can know that a friend is trustworthy even though human character is complex and no one is infallible. You can know that a historical event occurred even though archives are incomplete and historians occasionally err. The gap between "certain" and "justified enough to count as knowledge" is where almost all human knowledge lives — and fallibilism says this is perfectly fine.</p>
+
+      <div class="pull-quote">
+        <blockquote>"Fallibilism is the epistemological thesis that no belief of ours is ever certain — that uncertainty pervades all human inquiry — and yet this is no obstacle to our possessing knowledge."</blockquote>
+        <cite>Stephen Hetherington — "Fallibilism" (2005)</cite>
+      </div>
+
+      <p>Hetherington makes a crucial distinction: there is a difference between a belief that is <em>merely uncertain</em> (which almost all knowledge is) and a belief that is <em>unjustified</em> (which is not knowledge at all). Fallibilism licenses the former without endorsing the latter. We are allowed to say we know things — and to act on that knowledge — without pretending we have achieved logical certainty.</p>
+
+      <p>Paired with reliabilism, fallibilism forms a compelling counter-narrative to the skepticism embedded in The Matrix. Yes, we could be brains in vats. Yes, Gettier cases exist. Yes, every belief we hold <em>might</em> be wrong in some remote possible world. But none of this should stop us from navigating reality using the best tools available to us — perception, reason, scientific method, and the testimonies of others — knowing that these tools are fallible but not therefore useless.</p>
+
+      <p>Fallibilism also resonates with Plato's cave. The released prisoner's knowledge of the sun and the real world is not certain — it could, in some philosophical edge case, be challenged. But it is vastly superior to the shadow-knowledge of the prisoners below. Moving from worse knowledge to better knowledge — that is the human epistemic project, and fallibilism says we should pursue it with humility and confidence simultaneously.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SYNTHESIS -->
+<div class="section-band band-dark" id="synthesis">
+  <div class="section-band-inner">
+    <div class="section-label reveal">05 &mdash; Synthesized Conclusion</div>
+    <h2 class="section-heading reveal reveal-delay-1">Reality, <em>Verified Enough</em></h2>
+    <p class="intro-large reveal reveal-delay-2">Across five sources spanning two and a half millennia, a coherent answer to our central question begins to emerge — not triumphant certainty, but something more honest and, ultimately, more durable.</p>
+
+    <div class="synth-grid reveal">
+      <div class="synth-card card-skeptic">
+        <span class="synth-card-icon">⬛</span>
+        <p class="synth-card-title" style="color:#d4857a">The Matrix</p>
+        <p>Proves that radical, total deception is conceivable. Our senses could be systematically wrong. Absolute certainty is unachievable.</p>
+      </div>
+      <div class="synth-card card-reason">
+        <span class="synth-card-icon">🕯️</span>
+        <p class="synth-card-title" style="color:#6cccc0">Plato</p>
+        <p>Insists that truth exists and reason can approach it. The problem is incomplete perception, not impossible knowledge.</p>
+      </div>
+      <div class="synth-card card-problem">
+        <span class="synth-card-icon">🪙</span>
+        <p class="synth-card-title" style="color:var(--gold)">Gettier</p>
+        <p>Reveals that even justified true belief can fall short of knowledge due to luck. The standards for knowledge are stricter than we assumed.</p>
+      </div>
+      <div class="synth-card card-solution">
+        <span class="synth-card-icon">🔬</span>
+        <p class="synth-card-title" style="color:#90b8e8">Reliabilism</p>
+        <p>Knowledge is possible without certainty — what matters is the reliability of the cognitive processes that produce our beliefs.</p>
+      </div>
+      <div class="synth-card card-neutral">
+        <span class="synth-card-icon">⚖️</span>
+        <p class="synth-card-title" style="color:var(--parchment-dim)">Fallibilism</p>
+        <p>Uncertainty is the human condition, not an argument against knowledge. We can know things and still be wrong — and that's okay.</p>
+      </div>
+    </div>
+
+    <div class="gold-divider reveal"></div>
+
+    <p class="reveal">The trajectory of these five sources forms an arc. <em>The Matrix</em> and Plato's cave establish that human perception is an imperfect, potentially deceptive instrument. Gettier sharpens this: even when perception seems to work, the concept of "knowledge" is philosophically fragile, susceptible to lucky coincidences that mimic justified belief without constituting it.</p>
+
+    <p class="reveal">But the arc does not end in despair. Reliabilism answers Gettier by shifting the focus from lucky coincidence to causal reliability: true knowledge requires that the right process produce the right belief for the right reasons. And fallibilism answers both The Matrix and Gettier's residual anxiety by insisting that uncertainty — even deep, irreducible uncertainty — is not the enemy of knowledge. It is its permanent companion.</p>
+
+    <div class="thesis-box reveal">
+      <p class="thesis-text">Reality cannot be verified with absolute certainty — The Matrix shows us this is conceivable, and Gettier shows us that even our best epistemic tools can fail us in subtle ways. But reality can be verified <em>well enough</em>: through reliable processes of perception and reasoning, through honest acknowledgment of fallibility, and through the Platonic commitment to always seek more light. We may never leave the cave entirely. But we can walk further from the fire.</p>
+    </div>
+
+    <p class="reveal">This conclusion has practical urgency in a world saturated with misinformation, AI-generated content, and algorithmically curated realities. The response to epistemic crisis is not nihilism — the belief that nothing can be known — nor is it naive certainty. It is epistemic humility paired with epistemic courage: the willingness to form beliefs, revise them when evidence demands, trust reliable sources and methods, and act on our best available picture of the world.</p>
+
+    <p class="reveal">Morpheus offered Neo a binary choice: red pill or blue pill, truth or comfortable illusion. Philosophy, at its best, offers a third option — a lifetime of careful, fallible, ever-improving inquiry. That is not a consolation prize. It is, as Plato would have it, the highest human calling.</p>
+  </div>
+</div>
+
+<!-- BIBLIOGRAPHY -->
+<div class="section-band" id="bibliography">
+  <div class="section-band-inner">
+    <div class="section-label reveal">06 &mdash; Annotated Bibliography</div>
+    <h2 class="section-heading reveal reveal-delay-1">Works <em>Cited</em></h2>
+    <p class="reveal reveal-delay-2" style="color:var(--smoke); font-size:0.9rem; margin-bottom:2.5rem;">All sources formatted in MLA 9th edition. Annotations summarize each source's relevance to the central question.</p>
+
+    <div class="bib-entry reveal">
+      <span class="bib-number">01</span>
+      <div class="bib-citation">
+        <strong>The Matrix — Wachowski Sisters, 1999</strong>
+        Wachowski, Lana, and Lilly Wachowski, directors. <em>The Matrix</em>. Village Roadshow Pictures / Silver Pictures, 1999.
+        <div class="bib-annotation">
+          This landmark science fiction film dramatizes the philosophical hypothesis known as the "brain-in-a-vat" scenario, in which an intelligent race of machines constructs a perfect sensory simulation to enslave humanity. The film's central epistemological claim — articulated by the character Morpheus — is that what we call "real" is merely a pattern of electrical signals interpreted by the brain. For this project, <em>The Matrix</em> serves as the most radical articulation of skepticism about reality: if such a scenario were actual, no amount of internal reasoning or sensory experience could disclose it. The film therefore establishes the upper bound of our problem: in the worst case, reality is entirely unverifiable. It also raises the question of whether external intervention (the rebellion, the red pill) is the only possible escape from total epistemic imprisonment.
+        </div>
+      </div>
+    </div>
+
+    <div class="bib-entry reveal">
+      <span class="bib-number">02</span>
+      <div class="bib-citation">
+        <strong>Plato's Allegory of the Cave — Republic, Book VII</strong>
+        Plato. <em>The Republic</em>. Translated by Benjamin Jowett, Book VII, Oxford University Press, 375 BCE. Project Gutenberg, 2008.
+        <div class="bib-annotation">
+          In the <em>Allegory of the Cave</em>, Plato describes prisoners who have spent their lives watching shadows on a cave wall, mistaking these projections for reality. When a prisoner escapes to the surface and encounters the sun — the Form of the Good — he realizes that the shadows were mere approximations of a richer truth. This allegory introduces a crucial distinction from <em>The Matrix</em>: for Plato, the deception is not intentional or total. Reality genuinely exists, and human beings perceive <em>incomplete</em> versions of it, not fabricated substitutes. More importantly, Plato maintains that philosophical reason — the examined life — can guide human beings upward from shadow toward substance. This optimistic counterweight to radical skepticism frames the possibility that reality, while not immediately or fully available, is verifiable through sustained rational inquiry.
+        </div>
+      </div>
+    </div>
+
+    <div class="bib-entry reveal">
+      <span class="bib-number">03</span>
+      <div class="bib-citation">
+        <strong>Edmund Gettier — "Is Justified True Belief Knowledge?" (1963)</strong>
+        Gettier, Edmund L. "Is Justified True Belief Knowledge?" <em>Analysis</em>, vol. 23, no. 6, 1963, pp. 121–123. JSTOR, <a href="https://www.jstor.org/stable/3326922" style="color:var(--gold-dim)">www.jstor.org/stable/3326922</a>.
+        <div class="bib-annotation">
+          Edmund Gettier's three-page paper is among the most consequential publications in the history of analytic philosophy. Gettier challenged the definition of knowledge as "justified true belief" — a formulation traceable to Plato — by constructing thought experiments in which all three conditions (truth, belief, justification) are satisfied, yet no one would grant that the agent genuinely <em>knows</em> the proposition in question. The "Gettier problem" demonstrates that coincidence and epistemic luck can mimic real knowledge from the inside, making it impossible for the knower to distinguish genuine knowledge from accidental success. For this project, Gettier's contribution complicates any straightforward claim that reality is verifiable: even when we apply careful reasoning to reliable evidence and arrive at true conclusions, something can go subtly wrong at the metaphysical level, leaving us with justified true belief but not knowledge.
+        </div>
+      </div>
+    </div>
+
+    <div class="bib-entry reveal">
+      <span class="bib-number">04</span>
+      <div class="bib-citation">
+        <strong>Comesaña &amp; Graham — "Reliabilism" (2021)</strong>
+        Comesaña, Juan, and Peter Graham. "Reliabilism." <em>The Stanford Encyclopedia of Philosophy</em>, edited by Edward N. Zalta, Stanford University, Summer 2021 ed., <a href="https://plato.stanford.edu/entries/reliabilism/" style="color:var(--gold-dim)">plato.stanford.edu/entries/reliabilism/</a>.
+        <div class="bib-annotation">
+          This encyclopedic entry surveys reliabilist epistemology, the position that a belief constitutes knowledge when it is produced by a cognitive process that reliably generates true beliefs — perception, memory, logical inference, and scientific method being paradigmatic examples. Reliabilism offers a response to the Gettier problem: knowledge requires not merely that a belief be true and justified, but that the truth be <em>causally connected</em> to the reliability of the generative process. For our project, reliabilism is the first constructive step beyond the skeptical and Gettier challenges: it establishes that human beings can have genuine knowledge about reality even in the absence of certainty, provided their epistemic processes have good track records. It provides the theoretical scaffolding for a working, functional picture of verified reality.
+        </div>
+      </div>
+    </div>
+
+    <div class="bib-entry reveal">
+      <span class="bib-number">05</span>
+      <div class="bib-citation">
+        <strong>Stephen Hetherington — "Fallibilism" (2005)</strong>
+        Hetherington, Stephen. "Fallibilism." <em>The Internet Encyclopedia of Philosophy</em>, edited by James Fieser and Bradley Dowden, ISSN 2161-0002, 2005, <a href="https://iep.utm.edu/fallibil/" style="color:var(--gold-dim)">iep.utm.edu/fallibil/</a>.
+        <div class="bib-annotation">
+          Hetherington's entry on fallibilism articulates the epistemological thesis that knowledge is compatible with the <em>possibility</em> of error. One can know a proposition and still be mistaken — because "knowledge" does not require the elimination of every conceivable doubt, only a sufficiently high standard of justification relative to the context. Fallibilism reframes the anxiety produced by both radical skepticism and the Gettier problem: uncertainty is not a bug in human cognition but a permanent feature of finite, embodied knowledge. For this project, fallibilism serves as the culminating position: it synthesizes reliabilism's process-based account with an honest acknowledgment of human cognitive limitation, yielding the conclusion that reality can be verified "well enough" — not with certainty, but with the level of justification that makes functional knowledge possible. Paired with Plato's ascent from the cave, it suggests that human epistemic progress is real even if it is never complete.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>To What Extent Can Reality Be Verified? &nbsp;&bull;&nbsp; Vivek Jallepalli &amp; Avi Sharma &nbsp;&bull;&nbsp; Ms. Rejino &nbsp;&bull;&nbsp; Great Ideas &bull; Spring 2026</p>
+</footer>
+
+<script>
+/* ── MATRIX RAIN ── */
+(function() {
+  const canvas = document.getElementById('rain-canvas');
+  const ctx = canvas.getContext('2d');
+  const chars = 'ｦｧｨｩｪｫｬｭｮｯｰABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789αβγδεζηθφψωΣΠΩ∞∂∇∫≠≤≥∈∉∀∃';
+  let cols, drops;
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    cols = Math.floor(canvas.width / 18);
+    drops = Array(cols).fill(1).map(() => Math.random() * -50);
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(8, 8, 14, 0.07)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < cols; i++) {
+      const c = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * 18;
+      const y = drops[i] * 18;
+      const bright = Math.random();
+      if (bright > 0.97) {
+        ctx.fillStyle = '#e2c97e';
+        ctx.font = 'bold 13px monospace';
+      } else if (bright > 0.85) {
+        ctx.fillStyle = 'rgba(201,168,76,0.9)';
+        ctx.font = '13px monospace';
+      } else {
+        ctx.fillStyle = 'rgba(201,168,76,0.35)';
+        ctx.font = '13px monospace';
+      }
+      ctx.fillText(c, x, y);
+      if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i] += 0.35;
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  setInterval(draw, 55);
+})();
+
+/* ── TABS ── */
+function switchTab(btn, panelId) {
+  const system = btn.closest('.tab-system');
+  system.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  system.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+/* ── SCROLL REVEAL ── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
