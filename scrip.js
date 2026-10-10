@@ -17,7 +17,9 @@ const SOURCES = [
     { id: 'vidlink', name: 'VidLink', base: 'https://vidlink.pro' },
     { id: '2embed', name: '2Embed', base: 'https://www.2embed.cc' },
     { id: 'autoembed', name: 'AutoEmbed', base: 'https://autoembed.co' },
-    { id: 'vidrift', name: 'VidRift', base: 'https://embed.vidrift.net' }
+    { id: 'vidrift', name: 'VidRift', base: 'https://embed.vidrift.net' },
+    { id: 'moviesapi', name: 'MoviesAPI', base: 'https://moviesapi.to' },
+    { id: 'vidbolt', name: 'VidBolt', base: 'https://vidbolt.pro' }
 ];
 function buildSourceURL(source, id, type, season = 1, episode = 1, imdbId = null) {
     const provider = SOURCES.find(p => p.id === source);
@@ -103,9 +105,6 @@ const modal = document.getElementById('modal');
 const modalCloseBtn = document.getElementById('modalCloseBtn');
 const modalHero = document.getElementById('modalHero');
 const modalTitle = document.getElementById('modalTitle');
-const modalPlayVidfastBtn = document.getElementById('modalPlayVidfastBtn');
-const modalPlayVidsrcBtn = document.getElementById('modalPlayVidsrcBtn');
-const modalPlayVideasyBtn = document.getElementById('modalPlayVideasyBtn');
 const modalMyListBtn = document.getElementById('modalMyListBtn');
 const modalMeta = document.getElementById('modalMeta');
 const modalDesc = document.getElementById('modalDesc');
@@ -455,16 +454,6 @@ function setupEventListeners() {
         }
 
 
-    });
-    
-    modalPlayVidfastBtn.addEventListener('click', () => {
-        if (currentModalItem) playContent(currentModalItem.id, currentModalItem.mediaType, 'vidfast');
-    });
-     modalPlayVidsrcBtn.addEventListener('click', () => {
-        if (currentModalItem) playContent(currentModalItem.id, currentModalItem.mediaType, 'vidsrc');
-    });
-    modalPlayVideasyBtn.addEventListener('click', () => {
-        if (currentModalItem) playContent(currentModalItem.id, currentModalItem.mediaType, 'videasy');
     });
     
     modalMyListBtn.addEventListener('click', handleMyListToggle);
@@ -1041,6 +1030,8 @@ async function openModal(id, mediaType) {
     const modalItem = { id, mediaType };
     currentModalItem = modalItem;
     saveView();
+    selectModalSource(getWatchProgress()[`${mediaType === 'tv' ? 't' : 'm'}${id}`]?.source || 'vidfast');
+    document.getElementById('selectedSourcePlay').disabled = true;
     modal.classList.add('visible');
     document.body.style.overflow = 'hidden';
     modalTitle.textContent = 'Loading...';
@@ -1087,6 +1078,8 @@ async function openModal(id, mediaType) {
             modalGenres.innerHTML += `<br>${runtimeInfo}`;
         }
        
+        document.getElementById('selectedSourcePlay').disabled = false;
+        document.getElementById('selectedSourcePlay').textContent = getWatchProgress()[`${mediaType === 'tv' ? 't' : 'm'}${id}`] ? '▶ Resume' : '▶ Play';
         updateMyListButtonState();
         updateRemoveContinueButtonState();
     } catch (error) {
@@ -1137,6 +1130,7 @@ function handleMyListToggle() {
 }
 
 function closeModal() {
+    document.getElementById('modalSourcePicker').open = false;
     modal.classList.remove('visible');
     document.body.style.overflow = 'auto';
     currentModalItem = null;
@@ -1317,16 +1311,38 @@ function smoothScrollToElement(element) {
         inline: 'center'
     });
 }
-// One provider registry drives both selectors; no duplicate source buttons.
-const modalSources = document.getElementById('modalPlayOptions');
-modalSources.innerHTML = '<label for="modalSourceSelect">Playback source</label><select id="modalSourceSelect">' + SOURCES.map(p => `<option value="${p.id}">${p.name}</option>`).join('') + '</select><button class="modal-btn modal-btn-play" id="selectedSourcePlay">▶ Play / Resume</button>';
-document.getElementById('selectedSourcePlay').addEventListener('click', () => {
-    if (currentModalItem?.details) playContent(currentModalItem.id, currentModalItem.mediaType, document.getElementById('modalSourceSelect').value);
+// Shared provider registry keeps SRC numbering consistent in both views.
+let selectedModalSource = 'vidfast';
+const sourcePicker = document.getElementById('modalSourcePicker');
+const sourceButtons = document.getElementById('modalSourceButtons');
+sourceButtons.innerHTML = SOURCES.map((p, i) => `<button type="button" class="source-option" data-source="${p.id}" aria-pressed="${i === 0}"><span class="source-number">SRC ${i + 1}</span><span>${p.name}</span><span class="source-check" aria-hidden="true">✓</span></button>`).join('');
+function selectModalSource(id) {
+    selectedModalSource = SOURCES.some(p => p.id === id) ? id : 'vidfast';
+    const index = SOURCES.findIndex(p => p.id === selectedModalSource);
+    document.getElementById('selectedSourceLabel').textContent = `SRC ${index + 1}`;
+    sourceButtons.querySelectorAll('.source-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.source === selectedModalSource)));
+}
+sourceButtons.addEventListener('click', e => {
+    const button = e.target.closest('[data-source]');
+    if (!button) return;
+    selectModalSource(button.dataset.source);
+    sourcePicker.open = false;
+    sourcePicker.querySelector('summary').focus();
 });
-document.getElementById('playerSourceSelect').innerHTML = SOURCES.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+document.addEventListener('click', e => {
+    if (sourcePicker.open && !sourcePicker.contains(e.target)) sourcePicker.open = false;
+});
+document.getElementById('selectedSourcePlay').addEventListener('click', () => {
+    if (currentModalItem?.details) playContent(currentModalItem.id, currentModalItem.mediaType, selectedModalSource);
+});
+document.getElementById('playerSourceSelect').innerHTML = SOURCES.map((p, i) => `<option value="${p.id}">SRC ${i + 1} · ${p.name}</option>`).join('');
 document.getElementById('playerSourceSelect').addEventListener('change', e => {
     if (currentPlayerItem) playContent(currentPlayerItem.id, currentPlayerItem.mediaType, e.target.value, currentPlayerItem);
 });
 document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sourcePicker.open) {
+        sourcePicker.open = false;
+        sourcePicker.querySelector('summary').focus();
+    }
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.item')) { e.preventDefault(); e.target.click(); }
 });

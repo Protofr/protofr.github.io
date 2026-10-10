@@ -147,9 +147,16 @@
                         <h2 class="modal-title" id="modalTitle"></h2>
                     </div>
                     <div class="modal-play-options" id="modalPlayOptions">
-                        <button class="modal-btn modal-btn-play" id="modalPlayVidfastBtn">▶ Play</button>
-                        <button class="modal-btn modal-btn-play secondary" id="modalPlayVidsrcBtn">Play (SRC 2)</button>
-                        <button id="modalPlayVideasyBtn" class="modal-btn modal-btn-play secondary">Play (SRC 3)</button>
+                        <div class="play-control">
+                            <button class="modal-btn modal-btn-play" id="selectedSourcePlay" disabled>▶ Play</button>
+                            <details class="source-picker" id="modalSourcePicker">
+                                <summary aria-label="Choose playback source"><span id="selectedSourceLabel">SRC 1</span><span aria-hidden="true">⌄</span></summary>
+                                <div class="source-menu">
+                                    <p>Choose a server</p>
+                                    <div id="modalSourceButtons" role="group" aria-label="Playback sources"></div>
+                                </div>
+                            </details>
+                        </div>
                     </div>
                     <div class="modal-buttons">
                         <button class="modal-btn modal-btn-list" id="modalMyListBtn">+ My List</button>
