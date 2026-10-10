@@ -68,6 +68,9 @@ async function restoreView() {
 async function navigateCategory(category) {
     if (!['home', 'tv', 'movie', 'trending', 'mylist', 'continue'].includes(category)) category = 'home';
     currentCategory = category;
+    mainApp.dataset.category = category;
+    mainApp.classList.toggle('catalog-view', category !== 'home');
+    window.scrollTo({top: 0, behavior: 'instant'});
     clearSearch();
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.category === category));
     heroSection.style.display = category === 'home' ? 'flex' : 'none';
@@ -343,6 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- Event Listeners ---
 function setupEventListeners() {
+    const updateNavbarHeight = () => document.documentElement.style.setProperty('--navbar-height', `${navbar.offsetHeight}px`);
+    updateNavbarHeight();
+    new ResizeObserver(updateNavbarHeight).observe(navbar);
     window.addEventListener('scroll', () => {
         navbar.classList.toggle('scrolled', window.scrollY > 50);
     });

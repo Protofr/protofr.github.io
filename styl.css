@@ -22,7 +22,7 @@ body {
 
 .main-app.loaded {
     opacity: 1;
-    transform: scale(1);
+    transform: none;
 }
 
 /* --- Password Protection --- */
@@ -1355,7 +1355,7 @@ body {
 /* --- Responsive Design --- */
 @media (max-width: 800px) {
     body { padding-top: 60px; }
-    .nav-links { display: none; }
+    .nav-links { display: flex; }
     .hero-content { max-width: 90%; }
     .hero-title { font-size: 7vw; } 
     .hero-desc { font-size: 2.5vw; } 
@@ -1469,3 +1469,28 @@ body {
 @media (max-width: 760px) { .play-control .modal-btn-play { font-size: 15px; } .player-source-control { top: 12px; right: 12px; } .player-source-control select { max-width: 185px; } .player-episodes-btn { top: 66px; right: 12px; } .episode-list-player { top: 118px; } }
 
 @media (max-width: 760px) { .source-menu { bottom: auto; top: calc(100% + 8px); max-height: 50vh; overflow-y: auto; } }
+
+/* Keep navigation reachable and reserve its actual height on pages without a hero. */
+:root { --navbar-height: 76px; }
+.main-app.catalog-view .section { margin-top: 0; padding-top: calc(var(--navbar-height) + 32px); padding-bottom: 32px; }
+.main-app.catalog-view .navbar { background: #141414; border-bottom: 1px solid #ffffff12; }
+.search-results { padding-top: calc(var(--navbar-height) + 32px); }
+.logo { flex-shrink: 0; }
+.main-app[data-category="continue"] #continue,
+.main-app[data-category="mylist"] #mylist { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 8px 0 24px; transform: none; }
+.main-app[data-category="continue"] .continue-item,
+.main-app[data-category="mylist"] #mylist .item { width: 100%; min-width: 0; aspect-ratio: 16/9; }
+.main-app.catalog-view .section-title { font-size: clamp(20px, 1.6vw, 26px); margin-bottom: 18px; }
+.main-app[data-category="continue"] .continue-item .item-info { font-size: 13px; }
+@media (max-width: 800px) {
+    body { padding-top: 0; }
+    .navbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px 20px; }
+    .nav-left { display: contents; }
+    .navbar .logo { grid-column: 1; grid-row: 1; }
+    .nav-right { grid-column: 2; grid-row: 1; }
+    .navbar .nav-links { display: flex; grid-column: 1 / -1; grid-row: 2; flex-wrap: nowrap; overflow-x: auto; gap: 20px; padding-bottom: 4px; scrollbar-width: thin; min-width: 0; }
+    .navbar .nav-links a { flex-shrink: 0; font-size: 13px; }
+    .main-app.catalog-view .section { padding-top: calc(var(--navbar-height) + 24px); }
+    .main-app[data-category="continue"] #continue,
+    .main-app[data-category="mylist"] #mylist { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+}
