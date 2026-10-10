@@ -36,6 +36,24 @@ function buildSourceURL(source, id, type, season = 1, episode = 1, imdbId = null
 function readStoredJSON(key, fallback, storage = localStorage) {
     try { return JSON.parse(storage.getItem(key)) || fallback; } catch { return fallback; }
 }
+const SOURCE_PREFERENCES_KEY = 'avi_source_preferences';
+function validSource(id) { return SOURCES.some(provider => provider.id === id); }
+function getPreferredSource(id, mediaType) {
+    const preferences = readStoredJSON(SOURCE_PREFERENCES_KEY, {});
+    const key = `${mediaType === 'tv' ? 't' : 'm'}${id}`;
+    const savedSource = preferences.titles?.[key] || getWatchProgress()[key]?.source;
+    if (validSource(savedSource)) return savedSource;
+    return validSource(preferences.lastSource) ? preferences.lastSource : 'vidfast';
+}
+function rememberSource(source, id, mediaType) {
+    if (!validSource(source)) return;
+    const stored = readStoredJSON(SOURCE_PREFERENCES_KEY, {});
+    const preferences = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+    preferences.titles = preferences.titles && typeof preferences.titles === 'object' && !Array.isArray(preferences.titles) ? preferences.titles : {};
+    preferences.lastSource = source;
+    if (id && ['movie', 'tv'].includes(mediaType)) preferences.titles[`${mediaType === 'tv' ? 't' : 'm'}${id}`] = source;
+    localStorage.setItem(SOURCE_PREFERENCES_KEY, JSON.stringify(preferences));
+}
 const homeMarkup = document.getElementById('mainContent').innerHTML;
 let playbackRequest = 0;
 function saveView() {
@@ -381,7 +399,7 @@ function setupEventListeners() {
             const type = item.dataset.type;
             if (id && type) {
                 animateItemClick(item);
-                setTimeout(() => playContent(id, type, getWatchProgress()[`${type === 'tv' ? 't' : 'm'}${id}`]?.source || 'vidfast'), 150);
+                setTimeout(() => playContent(id, type, getPreferredSource(id, type)), 150);
             }
             return;
         }
@@ -1030,7 +1048,7 @@ async function openModal(id, mediaType) {
     const modalItem = { id, mediaType };
     currentModalItem = modalItem;
     saveView();
-    selectModalSource(getWatchProgress()[`${mediaType === 'tv' ? 't' : 'm'}${id}`]?.source || 'vidfast');
+    selectModalSource(getPreferredSource(id, mediaType));
     document.getElementById('selectedSourcePlay').disabled = true;
     modal.classList.add('visible');
     document.body.style.overflow = 'hidden';
@@ -1139,7 +1157,8 @@ function closeModal() {
 
 
 // --- Player Functionality ---
-async function playContent(id, mediaType, source = 'vidfast', episodeInfo = null) {
+async function playContent(id, mediaType, source = null, episodeInfo = null) {
+    source = validSource(source) ? source : getPreferredSource(id, mediaType);
     const request = ++playbackRequest;
     const modalItem = currentModalItem;
     const allProgress = getWatchProgress();
@@ -1157,6 +1176,7 @@ async function playContent(id, mediaType, source = 'vidfast', episodeInfo = null
         if (!url) throw new Error('Invalid source or episode.');
         closeModal();
         currentPlayerItem = { id, mediaType, season, episode, source };
+        rememberSource(source, id, mediaType);
         const sameEpisode = mediaType === 'movie' || (saved.last_season_watched === season && saved.last_episode_watched === episode);
         const latestProgress = getWatchProgress();
         latestProgress[key] = {...saved, id, type: mediaType, source, last_updated: Date.now(), last_season_watched: season, last_episode_watched: episode,
@@ -1312,7 +1332,7 @@ function smoothScrollToElement(element) {
     });
 }
 // Shared provider registry keeps SRC numbering consistent in both views.
-let selectedModalSource = 'vidfast';
+let selectedModalSource = getPreferredSource();
 const sourcePicker = document.getElementById('modalSourcePicker');
 const sourceButtons = document.getElementById('modalSourceButtons');
 sourceButtons.innerHTML = SOURCES.map((p, i) => `<button type="button" class="source-option" data-source="${p.id}" aria-pressed="${i === 0}"><span class="source-number">SRC ${i + 1}</span><span>${p.name}</span><span class="source-check" aria-hidden="true">✓</span></button>`).join('');
@@ -1326,6 +1346,7 @@ sourceButtons.addEventListener('click', e => {
     const button = e.target.closest('[data-source]');
     if (!button) return;
     selectModalSource(button.dataset.source);
+    rememberSource(selectedModalSource, currentModalItem?.id, currentModalItem?.mediaType);
     sourcePicker.open = false;
     sourcePicker.querySelector('summary').focus();
 });
@@ -1337,7 +1358,10 @@ document.getElementById('selectedSourcePlay').addEventListener('click', () => {
 });
 document.getElementById('playerSourceSelect').innerHTML = SOURCES.map((p, i) => `<option value="${p.id}">SRC ${i + 1} · ${p.name}</option>`).join('');
 document.getElementById('playerSourceSelect').addEventListener('change', e => {
-    if (currentPlayerItem) playContent(currentPlayerItem.id, currentPlayerItem.mediaType, e.target.value, currentPlayerItem);
+    if (currentPlayerItem) {
+        rememberSource(e.target.value, currentPlayerItem.id, currentPlayerItem.mediaType);
+        playContent(currentPlayerItem.id, currentPlayerItem.mediaType, e.target.value, currentPlayerItem);
+    }
 });
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && sourcePicker.open) {
