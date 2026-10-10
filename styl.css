@@ -1414,3 +1414,16 @@ body {
         gap: 15px;
     }
 }
+/* Consistent navigation and accessible playback controls */
+.nav-links { flex-wrap: wrap; gap: 16px; }
+.nav-links a { white-space: nowrap; }
+.nav-links a.active { color: #fff; border-bottom: 2px solid #e50914; padding-bottom: 6px; }
+.modal-play-options { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.modal-play-options label { font-size: 14px; color: #ddd; }
+select { background: #202027; color: white; border: 1px solid #666; border-radius: 8px; padding: 10px 14px; font: inherit; max-width: 100%; }
+.player-source-control { position: absolute; top: 20px; right: 24px; z-index: 10; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(0,0,0,.85); border-radius: 10px; }
+.item:focus-visible, button:focus-visible, a:focus-visible, select:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.row-items { scroll-behavior: smooth; }
+.continue-item .item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) { .navbar { flex-wrap: wrap; gap: 12px; } .nav-left { flex-wrap: wrap; gap: 12px; } .nav-links { gap: 12px; font-size: 13px; } .player-source-control { top: 12px; right: 12px; } .player-source-control label { display:none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

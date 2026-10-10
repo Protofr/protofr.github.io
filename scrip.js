@@ -7,8 +7,64 @@ const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
 // Embed Base URLs
 const VIDFAST_BASE_URL = 'https://vidfast.pro';
-const VIDSRC_BASE_URL = 'https://vidsrc.me';
+const VIDSRC_BASE_URL = 'https://vidsrc.xyz';
 const VIDEASY_BASE_URL = 'https://player.videasy.net';
+const SOURCES = [
+    { id: 'vidfast', name: 'VidFast', base: 'https://vidfast.pro' },
+    { id: 'vidsrc', name: 'VidSrc', base: 'https://vidsrc.xyz' },
+    { id: 'vidsrc-net', name: 'VidSrc alternate', base: 'https://vidsrc.net' },
+    { id: 'videasy', name: 'Videasy', base: 'https://player.videasy.net' },
+    { id: 'vidlink', name: 'VidLink', base: 'https://vidlink.pro' },
+    { id: '2embed', name: '2Embed', base: 'https://www.2embed.cc' },
+    { id: 'autoembed', name: 'AutoEmbed', base: 'https://autoembed.co' },
+    { id: 'vidrift', name: 'VidRift', base: 'https://embed.vidrift.net' }
+];
+function buildSourceURL(source, id, type, season = 1, episode = 1, imdbId = null) {
+    const provider = SOURCES.find(p => p.id === source);
+    if (!provider || !Number.isInteger(Number(id)) || Number(id) <= 0 || !['tv', 'movie'].includes(type)) return '';
+    if (type === 'tv' && (!Number.isInteger(Number(season)) || Number(season) < 1 || !Number.isInteger(Number(episode)) || Number(episode) < 1)) return '';
+    const base = provider.base;
+    const isTV = type === 'tv';
+    if (source.startsWith('vidsrc')) return `${base}/embed/${type}?tmdb=${id}${isTV ? `&season=${season}&episode=${episode}` : ''}`;
+    if (source === '2embed') return isTV ? `${base}/embedtv/${id}&s=${season}&e=${episode}` : `${base}/embed/${id}`;
+    if (source === 'autoembed') return isTV ? `${base}/tv/${imdbId ? 'imdb' : 'tmdb'}/${imdbId || id}-${season}-${episode}` : `${base}/movie/${imdbId ? 'imdb' : 'tmdb'}/${imdbId || id}`;
+    const prefix = source === 'vidrift' ? '/embed' : '';
+    return `${base}${prefix}/${type}/${source === 'vidfast' ? imdbId || id : id}${isTV ? `/${season}/${episode}` : ''}${source === 'vidfast' ? '?sub=en' : ''}`;
+}
+function readStoredJSON(key, fallback, storage = localStorage) {
+    try { return JSON.parse(storage.getItem(key)) || fallback; } catch { return fallback; }
+}
+const homeMarkup = document.getElementById('mainContent').innerHTML;
+let playbackRequest = 0;
+function saveView() {
+    sessionStorage.setItem('avi_view', JSON.stringify({category: currentCategory, modal: currentModalItem && {id: currentModalItem.id, mediaType: currentModalItem.mediaType}, player: currentPlayerItem}));
+}
+async function restoreView() {
+    const view = readStoredJSON('avi_view', {}, sessionStorage);
+    await navigateCategory(view.category || 'home');
+    if (view.player) await playContent(view.player.id, view.player.mediaType, view.player.source, view.player);
+    else if (view.modal) await openModal(view.modal.id, view.modal.mediaType);
+}
+async function navigateCategory(category) {
+    if (!['home', 'tv', 'movie', 'trending', 'mylist', 'continue'].includes(category)) category = 'home';
+    currentCategory = category;
+    clearSearch();
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.toggle('active', a.dataset.category === category));
+    heroSection.style.display = category === 'home' ? 'flex' : 'none';
+    mainContent.innerHTML = homeMarkup;
+    saveView();
+    if (category === 'home') await loadContent();
+    else if (category === 'mylist' || category === 'continue') {
+        mainContent.querySelectorAll('.row').forEach(row => row.style.display = 'none');
+        const row = document.getElementById(category === 'mylist' ? 'myListRow' : 'continueWatchingRow');
+        row.style.display = 'block';
+        if (category === 'mylist') await loadMyListRow('mylist'); else await loadContinueWatching('continue');
+        row.style.display = 'block';
+        const container = document.getElementById(category === 'mylist' ? 'mylist' : 'continue');
+        if (!container.children.length) container.innerHTML = '<div class="loading">Nothing here yet. Choose a title to get started.</div>';
+    } else await loadCategoryContent(category);
+    updatePageTitle({home:'Home', tv:'TV Shows', movie:'Movies', trending:'New & Popular', mylist:'My List', continue:'Continue Watching'}[category]);
+}
 const _0x7b3c = 'avi_secure_salt';
 function encryptData(data) { return btoa(data + 'fake_key'); }
 function decryptData(data) { return atob(data).replace('fake_key', ''); }
@@ -99,9 +155,8 @@ async function _0x4c8a() {
         }, 100);
         
         setupEventListeners();
-        loadContent();
+        restoreView();
         startHeroRotation();
-        updatePageTitle('Home');
         // Cache authentication state
         sessionStorage.setItem('avi_authenticated', 'true');
     } else {
@@ -141,9 +196,8 @@ function checkSessionAuth() {
             mainApp.classList.add('loaded');
         }, 100);
         setupEventListeners();
-        loadContent();
+        restoreView();
         startHeroRotation();
-        updatePageTitle('Home');
     }
 }
 
@@ -162,7 +216,7 @@ const MY_LIST_STORAGE_KEY = 'avi_my_list';
 
 function getMyList() {
     const list = localStorage.getItem(MY_LIST_STORAGE_KEY);
-    return list ? JSON.parse(list) : [];
+    return readStoredJSON(MY_LIST_STORAGE_KEY, []);
 }
 function saveMyList(list) {
     localStorage.setItem(MY_LIST_STORAGE_KEY, JSON.stringify(list));
@@ -196,7 +250,7 @@ const WATCH_PROGRESS_STORAGE_KEY = 'avi_watch_progress';
 
 function getWatchProgress() {
     const progress = localStorage.getItem(WATCH_PROGRESS_STORAGE_KEY);
-    return progress ? JSON.parse(progress) : {};
+    return readStoredJSON(WATCH_PROGRESS_STORAGE_KEY, {});
 }
 
 function saveWatchProgress(progressData) {
@@ -216,12 +270,19 @@ function removeFromContinueWatching(id, mediaType) {
 }
 
 function handlePlayerMessage(event) {
-    if (!event.origin.endsWith('.vidfast.pro') && event.origin !== 'https://vidfast.pro') return;
+    if (!currentPlayerItem || event.source !== playerFrame.contentWindow) return;
+    let host;
+    try { host = new URL(event.origin).hostname; } catch { return; }
+    if (!(host === 'vidfast.pro' || host.endsWith('.vidfast.pro') || host === 'vidfast.vc' || host.endsWith('.vidfast.vc'))) return;
     const data = event.data;
     if (!data) return;
 
     if (data.type === 'PLAYER_EVENT' && data.data) {
-        const { event: playerEvent, currentTime, duration, tmdbId, mediaType, season, episode } = data.data;
+        const { event: playerEvent, currentTime, duration } = data.data;
+        const {id: tmdbId, mediaType} = currentPlayerItem;
+        const season = Number(data.data.season || currentPlayerItem.season), episode = Number(data.data.episode || currentPlayerItem.episode);
+        if (!Number.isFinite(currentTime) || !Number.isFinite(duration) || duration <= 0) return;
+        currentPlayerItem.season = season; currentPlayerItem.episode = episode; saveView();
 
         if (['play', 'pause', 'seeked', 'timeupdate', 'ended'].includes(playerEvent)) {
             const allProgress = getWatchProgress();
@@ -312,17 +373,6 @@ function setupEventListeners() {
                 return;
             }
             
-            const item = e.target.closest('.item');
-            if (item) {
-                const id = parseInt(item.dataset.id);
-                const type = item.dataset.type;
-                if (id && type) {
-                    animateItemClick(item);
-                    setTimeout(() => openModal(id, type), 150);
-                }
-                return;
-            }
-
         // Handle hover button clicks
         const playBtn = e.target.closest('.item-play-btn');
         if (playBtn) {
@@ -332,7 +382,7 @@ function setupEventListeners() {
             const type = item.dataset.type;
             if (id && type) {
                 animateItemClick(item);
-                setTimeout(() => playContent(id, type, 'vidfast'), 150);
+                setTimeout(() => playContent(id, type, getWatchProgress()[`${type === 'tv' ? 't' : 'm'}${id}`]?.source || 'vidfast'), 150);
             }
             return;
         }
@@ -372,6 +422,17 @@ function setupEventListeners() {
             return;
         }
 
+            const item = e.target.closest('.item');
+            if (item) {
+                const id = parseInt(item.dataset.id);
+                const type = item.dataset.type;
+                if (id && type) {
+                    animateItemClick(item);
+                    setTimeout(() => openModal(id, type), 150);
+                }
+                return;
+            }
+
         const navLink = e.target.closest('.nav-links a');
         if (navLink) {
             e.preventDefault();
@@ -382,19 +443,7 @@ function setupEventListeners() {
                 return;
             }
             
-            document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-            navLink.classList.add('active');
-            currentCategory = category;
-            
-            if (category === 'mylist') {
-                const myListRowEl = document.getElementById('myListRow');
-                if (myListRowEl) myListRowEl.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                showMainContent();
-                loadCategoryContent(category);
-            }
-            clearSearch();
-            updatePageTitle(category.charAt(0).toUpperCase() + category.slice(1));
+            navigateCategory(category);
             return;
         }
 
@@ -484,6 +533,7 @@ function handleKeyboardNavigation(e) {
 
 // --- Hero Rotation ---
 function startHeroRotation() {
+    clearInterval(heroRotationInterval);
     heroRotationInterval = setInterval(() => {
         if (heroItems.length > 1) {
             currentHeroIndex = (currentHeroIndex + 1) % heroItems.length;
@@ -556,6 +606,7 @@ async function loadContent() {
             media_type: item.media_type || (item.title ? 'movie' : 'tv')
         }));
 
+        heroItems = uniqueItems(heroItems);
         if (heroItems.length > 0) {
             updateHeroContent(heroItems[0]);
         } else {
@@ -596,8 +647,8 @@ async function loadCategoryContent(category) {
     const configs = categoryConfigs[category] || [];
     
     // Clear existing content
-    mainContent.innerHTML = '';
-    
+    mainContent.innerHTML = `<div class="row" id="continueWatchingRow" style="display:none"><h2 class="section-title">Continue Watching</h2><div class="row-container"><div class="row-items" id="continue"></div></div></div>`;
+    loadContinueWatching('continue');
     // Add rows for the category
     configs.forEach(config => {
         const rowHtml = `
@@ -657,7 +708,7 @@ async function loadContinueWatching(elementId) {
 
     const watchProgress = getWatchProgress();
     const items = Object.values(watchProgress)
-        .filter(item => item.progress?.duration > 0 && (item.progress.watched / item.progress.duration) < 0.95)
+        .filter(item => item.details && (!(item.progress?.duration > 0) || item.progress.watched / item.progress.duration < 0.95))
         .sort((a, b) => b.last_updated - a.last_updated);
     
     if (items.length === 0) {
@@ -667,11 +718,11 @@ async function loadContinueWatching(elementId) {
     
     rowEl.style.display = 'block';
     element.innerHTML = items.map(item => {
-        const title = item.details?.title || 'Loading title...';
+        const title = escapeHTML(item.details?.title || 'Untitled');
         const backdropPath = item.details?.backdrop_path || item.details?.poster_path;
         const backdropUrl = backdropPath ? `${IMAGE_BASE_URL}${backdropPath}` : 'https://via.placeholder.com/300x169/222/fff?text=No+Image';
 
-        const progressPercent = (item.progress.watched / item.progress.duration) * 100;
+        const progressPercent = item.progress?.duration > 0 ? Math.min(100, Math.max(0, item.progress.watched / item.progress.duration * 100)) : 0;
 
         const epInfo = item.type === 'tv' && item.last_season_watched && item.last_episode_watched
             ? `S${item.last_season_watched} • E${item.last_episode_watched}` : '';
@@ -743,10 +794,10 @@ async function loadGalleryRow(elementId) {
         }));
 
         // Shuffle the array for variety
-        const shuffledItems = allItems.sort(() => Math.random() - 0.5);
+        const shuffledItems = uniqueItems(allItems).sort(() => Math.random() - 0.5);
 
         element.innerHTML = shuffledItems.map(item => {
-            const title = item.title || item.name;
+            const title = escapeHTML(item.title || item.name);
             const backdrop = item.backdrop_path ? `${BACKDROP_BASE_URL}${item.backdrop_path}` : (item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : 'https://via.placeholder.com/300x169/333/fff?text=No+Image');
             const year = (item.release_date || item.first_air_date || '').substring(0, 4);
             const rating = item.vote_average ? `${item.vote_average.toFixed(1)}★` : '';
@@ -812,7 +863,7 @@ async function loadRecentlyAddedRow(elementId) {
         const sortedItems = allItems.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
 
         element.innerHTML = sortedItems.slice(0, 15).map(item => {
-            const title = item.title || item.name;
+            const title = escapeHTML(item.title || item.name);
             const backdrop = item.backdrop_path ? `${BACKDROP_BASE_URL}${item.backdrop_path}` : (item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : 'https://via.placeholder.com/300x169/333/fff?text=No+Image');
             const year = (item.release_date || '').substring(0, 4);
             const isNew = new Date(item.release_date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
@@ -857,7 +908,7 @@ async function loadRow(elementId, endpoint) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        const items = data.results.filter(item => item.backdrop_path).slice(0, 20);
+        const items = uniqueItems(data.results).filter(item => item.backdrop_path).slice(0, 20);
 
         if (items.length === 0) {
             element.innerHTML = '<div class="loading">No content available.</div>';
@@ -880,8 +931,10 @@ async function loadRow(elementId, endpoint) {
     }
 }
 
+function uniqueItems(items) { return [...new Map(items.filter(i => !i.media_type || ['movie', 'tv'].includes(i.media_type)).map(i => [`${i.media_type || (i.title ? 'movie' : 'tv')}:${i.id}`, i])).values()]; }
+function escapeHTML(value) { return String(value || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function createItemHTML(item) {
-    const title = item.title || item.name;
+    const title = escapeHTML(item.title || item.name);
     const backdrop = item.backdrop_path ? `${BACKDROP_BASE_URL}${item.backdrop_path}` : (item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : 'https://via.placeholder.com/300x169/333/fff?text=No+Image');
     return `
         <div class="item" style="background-image: url('${backdrop}')" data-id="${item.id}" data-type="${item.media_type}" tabindex="0" role="button" aria-label="${title}">
@@ -918,6 +971,7 @@ async function searchContent(query) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        if (searchBox.value.trim() !== query) return;
         const allResults = data.results
             .filter(item => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path)
             .sort((a, b) => b.popularity - a.popularity);
@@ -930,7 +984,7 @@ async function searchContent(query) {
 
         document.getElementById('searchTitle').textContent = `Search Results for "${query}" (${allResults.length} items)`;
         searchGrid.innerHTML = allResults.slice(0, 50).map(item => {
-            const title = item.title || item.name;
+            const title = escapeHTML(item.title || item.name);
             const poster = `${IMAGE_BASE_URL}${item.poster_path}`;
             const year = (item.release_date || item.first_air_date || '').substring(0, 4);
             const rating = item.vote_average ? `${item.vote_average.toFixed(1)}★` : '';
@@ -967,6 +1021,7 @@ async function searchContent(query) {
 }
 
 function clearSearch() {
+    clearTimeout(searchTimeout);
     searchBox.value = '';
     searchContainer.classList.remove('expanded');
     showMainContent();
@@ -976,39 +1031,16 @@ function clearSearch() {
 function showMainContent() {
     searchResultsSection.style.display = 'none';
     mainContent.style.display = 'block';
-    heroSection.style.display = 'flex';
+    heroSection.style.display = currentCategory === 'home' ? 'flex' : 'none';
 }
 
-function navigateToHome() {
-    // Reset all navigation states
-    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-    document.querySelector('.nav-links a[data-category="home"]').classList.add('active');
-    currentCategory = 'home';
-    
-    // Clear search and show main content
-    clearSearch();
-    showMainContent();
-    
-    // Reload all home content
-    loadContent();
-    
-    // Update page title
-    updatePageTitle('Home');
-    
-    // Scroll to top smoothly
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Restart hero rotation if it was stopped
-    if (heroRotationInterval) {
-        clearInterval(heroRotationInterval);
-        startHeroRotation();
-    }
-}
-
+function navigateToHome() { navigateCategory('home'); window.scrollTo({top: 0, behavior: 'smooth'}); }
 
 // --- Modal Functionality ---
 async function openModal(id, mediaType) {
-    currentModalItem = { id, mediaType };
+    const modalItem = { id, mediaType };
+    currentModalItem = modalItem;
+    saveView();
     modal.classList.add('visible');
     document.body.style.overflow = 'hidden';
     modalTitle.textContent = 'Loading...';
@@ -1021,6 +1053,7 @@ async function openModal(id, mediaType) {
             fetch(`${BASE_URL}/${mediaType}/${id}/credits?api_key=${API_KEY}`).then(res => res.json()),
             fetch(`${BASE_URL}/${mediaType}/${id}/external_ids?api_key=${API_KEY}`).then(res => res.json())
         ]);
+        if (currentModalItem !== modalItem) return;
         currentModalItem.details = details;
         currentModalItem.externalIds = externalIds;
 
@@ -1074,7 +1107,7 @@ function updateRemoveContinueButtonState() {
     if (modalRemoveContinueBtn && currentModalItem) {
         const watchProgress = getWatchProgress();
         const key = currentModalItem.mediaType === 'tv' ? `t${currentModalItem.id}` : `m${currentModalItem.id}`;
-        const inContinueWatching = watchProgress[key] && watchProgress[key].progress?.duration > 0;
+        const inContinueWatching = Boolean(watchProgress[key]);
         
         modalRemoveContinueBtn.style.display = inContinueWatching ? 'block' : 'none';
     }
@@ -1107,70 +1140,44 @@ function closeModal() {
     modal.classList.remove('visible');
     document.body.style.overflow = 'auto';
     currentModalItem = null;
+    saveView();
 }
 
 
 // --- Player Functionality ---
-async function playContent(id, mediaType, source, episodeInfo = null) {
-    closeModal();
-    
-    // Ensure details are saved in localStorage for "Continue Watching"
+async function playContent(id, mediaType, source = 'vidfast', episodeInfo = null) {
+    const request = ++playbackRequest;
+    const modalItem = currentModalItem;
     const allProgress = getWatchProgress();
-    const key = mediaType === 'tv' ? `t${id}` : `m${id}`;
-    if (!allProgress[key] || !allProgress[key].details) {
-        try {
-            const details = await fetch(`${BASE_URL}/${mediaType}/${id}?api_key=${API_KEY}`).then(r => r.json());
-            if (!allProgress[key]) allProgress[key] = { id, type: mediaType, progress: {}, last_updated: Date.now() };
-            allProgress[key].details = { title: details.title || details.name, backdrop_path: details.backdrop_path, poster_path: details.poster_path };
-            saveWatchProgress(allProgress);
-            loadContinueWatching('continue');
-        } catch (error) { console.error("Could not save details for CW", error); }
-    }
-
-    let videoUrl = '';
-    let imdbId = currentModalItem?.externalIds?.imdb_id;
-    if (!imdbId) {
-        try {
-            const externalIds = await fetch(`${BASE_URL}/${mediaType}/${id}/external_ids?api_key=${API_KEY}`).then(res => res.json());
-            imdbId = externalIds.imdb_id;
-        } catch (e) { /* ignore */ }
-    }
-
-    let season = 1, episode = 1;
-    if (mediaType === 'tv') {
-        const progress = allProgress[key];
-        if (episodeInfo) {
-            ({ season, episode } = episodeInfo);
-        } else if (progress?.last_season_watched && progress?.last_episode_watched) {
-            season = progress.last_season_watched;
-            episode = progress.last_episode_watched;
-        }
-    }
-
-    currentPlayerItem = { id, mediaType, season, episode, source };
-
-    if (mediaType === 'movie') {
-        if (source === 'vidsrc') videoUrl = `${VIDSRC_BASE_URL}/embed/movie?tmdb=${id}`;
-        else if (source === 'vidfast' && imdbId) videoUrl = `${VIDFAST_BASE_URL}/movie/${imdbId}`;
-        else if (source === 'videasy') videoUrl = `${VIDEASY_BASE_URL}/movie/${id}`;
-        playerEpisodesBtn.style.display = 'none';
+    const key = `${mediaType === 'tv' ? 't' : 'm'}${id}`;
+    try {
+        const response = await fetch(`${BASE_URL}/${mediaType}/${id}?api_key=${API_KEY}&append_to_response=external_ids`);
+        if (!response.ok) throw new Error('Title could not be loaded.');
+        const details = await response.json();
+        if (request !== playbackRequest) return;
+        const saved = allProgress[key] || {};
+        const season = Number(episodeInfo?.season || saved.last_season_watched || 1);
+        const episode = Number(episodeInfo?.episode || saved.last_episode_watched || 1);
+        const imdbId = details.imdb_id || details.external_ids?.imdb_id || modalItem?.externalIds?.imdb_id;
+        const url = buildSourceURL(source, id, mediaType, season, episode, imdbId);
+        if (!url) throw new Error('Invalid source or episode.');
+        closeModal();
+        currentPlayerItem = { id, mediaType, season, episode, source };
+        const sameEpisode = mediaType === 'movie' || (saved.last_season_watched === season && saved.last_episode_watched === episode);
+        const latestProgress = getWatchProgress();
+        latestProgress[key] = {...saved, id, type: mediaType, source, last_updated: Date.now(), last_season_watched: season, last_episode_watched: episode,
+            progress: sameEpisode ? saved.progress || {} : {},
+            details: {title: details.title || details.name, backdrop_path: details.backdrop_path, poster_path: details.poster_path}};
+        saveWatchProgress(latestProgress);
+        loadContinueWatching('continue');
+        playerEpisodesBtn.style.display = mediaType === 'tv' ? 'flex' : 'none';
         episodeListPlayer.classList.remove('visible');
-    } else if (mediaType === 'tv') {
-        if (source === 'vidsrc') videoUrl = `${VIDSRC_BASE_URL}/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
-        else if (source === 'vidfast' && imdbId) videoUrl = `${VIDFAST_BASE_URL}/tv/${imdbId}/${season}/${episode}`;
-        else if (source === 'videasy') videoUrl = `${VIDEASY_BASE_URL}/tv/${id}/${season}/${episode}`;
-        playerEpisodesBtn.style.display = 'flex';
-        loadPlayerEpisodes(id, season);
-    }
-    
-    if (videoUrl) {
-        showPlayer(videoUrl);
-        // Update title
-        const title = currentModalItem?.details?.title || currentModalItem?.details?.name || 'Unknown';
-        updatePageTitle(`${title}${season && episode ? ` S${season}E${episode}` : ''}`);
-    } else {
-        alert(`Could not construct a valid URL for source: ${source}. This may be due to a missing IMDB ID.`);
-    }
+        if (mediaType === 'tv') loadPlayerEpisodes(id, season);
+        document.getElementById('playerSourceSelect').value = source;
+        showPlayer(url);
+        saveView();
+        updatePageTitle(`${details.title || details.name}${mediaType === 'tv' ? ` S${season}E${episode}` : ''}`);
+    } catch (error) { alert(`Could not open player: ${error.message}`); }
 }
 
 function showPlayer(url) {
@@ -1183,10 +1190,12 @@ function closePlayer() {
     playerOverlay.classList.remove('visible');
     playerFrame.src = 'about:blank';
     document.body.style.overflow = 'auto';
+    ++playbackRequest;
     currentPlayerItem = null;
+    saveView();
     episodeListPlayer.classList.remove('visible');
     playerEpisodeContent.innerHTML = '';
-    updatePageTitle('Home');
+    updatePageTitle(currentCategory === 'home' ? 'Home' : currentCategory);
 }
 
 function togglePlayerEpisodesList() {
@@ -1308,3 +1317,16 @@ function smoothScrollToElement(element) {
         inline: 'center'
     });
 }
+// One provider registry drives both selectors; no duplicate source buttons.
+const modalSources = document.getElementById('modalPlayOptions');
+modalSources.innerHTML = '<label for="modalSourceSelect">Playback source</label><select id="modalSourceSelect">' + SOURCES.map(p => `<option value="${p.id}">${p.name}</option>`).join('') + '</select><button class="modal-btn modal-btn-play" id="selectedSourcePlay">▶ Play / Resume</button>';
+document.getElementById('selectedSourcePlay').addEventListener('click', () => {
+    if (currentModalItem?.details) playContent(currentModalItem.id, currentModalItem.mediaType, document.getElementById('modalSourceSelect').value);
+});
+document.getElementById('playerSourceSelect').innerHTML = SOURCES.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+document.getElementById('playerSourceSelect').addEventListener('change', e => {
+    if (currentPlayerItem) playContent(currentPlayerItem.id, currentPlayerItem.mediaType, e.target.value, currentPlayerItem);
+});
+document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.item')) { e.preventDefault(); e.target.click(); }
+});
