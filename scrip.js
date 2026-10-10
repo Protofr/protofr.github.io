@@ -66,7 +66,7 @@ async function restoreView() {
     else if (view.modal) await openModal(view.modal.id, view.modal.mediaType);
 }
 async function navigateCategory(category) {
-    if (!['home', 'tv', 'movie', 'trending', 'mylist', 'continue'].includes(category)) category = 'home';
+    if (!['home', 'tv', 'movie', 'trending', 'mylist'].includes(category)) category = 'home';
     currentCategory = category;
     mainApp.dataset.category = category;
     mainApp.classList.toggle('catalog-view', category !== 'home');
